@@ -1,0 +1,34 @@
+# This is Git's per-user configuration file.
+[user]
+	name = Max Hill
+	email = max@hills.nu
+[github]
+	user = maxhill
+[core]
+	editor = /usr/bin/vim
+    excludesfile = ~/.gitignore_global
+[push]
+	default = current
+[branch]
+	autosetuprebase = always
+[pull]
+	rebase = true
+[rerere]
+    enabled = true
+    autoupdate = true
+
+# Include custom .gitconfig if in work folder
+[includeIf "gitdir:~/code/work/"]
+    path = ~/code/work/.gitconfig
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+
+[credential]
+	helper = cache --timeout=3600
+[coderabbit]
+	machineId = cli/6830963b970e47eda9363b40d1e3de66
