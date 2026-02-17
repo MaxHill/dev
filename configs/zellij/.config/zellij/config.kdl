@@ -2,6 +2,10 @@ keybinds clear-defaults=true {
     locked {
         bind "Ctrl g" { SwitchToMode "normal"; }
     }
+    normal {
+        // Normal mode allows all keypresses to pass through to the application
+        // This is essential for paste to work in applications like OpenCode
+    }
     pane {
         bind "left" { MoveFocus "left"; }
         bind "down" { MoveFocus "down"; }
@@ -362,7 +366,7 @@ web_client {
 // Examples:
 //
 // copy_command "xclip -selection clipboard" // x11
-// copy_command "wl-copy"                    // wayland
+copy_command "wl-copy"                    // wayland
 // copy_command "pbcopy"                     // osx
 // 
 // copy_command "pbcopy"
