@@ -12,5 +12,5 @@ set -e
 ./install-opencode.sh
 ./install-wget.sh
 ./install-hyprland-overrides.sh
-./install-zellij.sh
+./install-tmux.sh
 

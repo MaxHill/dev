@@ -7,7 +7,7 @@ require("user.types")
 -- Plugins
 -- -----------------------------
 vim.pack.add({
-	{ src = "https://github.com/vague2k/vague.nvim" },
+    { src = "https://github.com/tahayvr/matteblack.nvim" },
 	{ src = "https://github.com/echasnovski/mini.surround" },
 	{ src = "https://github.com/echasnovski/mini.comment" },
 	{ src = "https://github.com/nvim-treesitter/nvim-treesitter" },
@@ -27,6 +27,8 @@ vim.pack.add({
 	{ src = "https://github.com/nvim-telescope/telescope-fzf-native.nvim", build = "make" },
 	-- Harpoon 2
 	{ src = "https://github.com/ThePrimeagen/harpoon", version = "harpoon2" },
+    -- Tmux navigation
+    { src = "https://github.com/christoomey/vim-tmux-navigator" },
 })
 -- local packages
 vim.cmd.packadd("netcoredbg-macOS-arm64.nvim") -- Vendored version with improvements
@@ -80,11 +82,36 @@ vim.keymap.set("n", "<leader>l", function()
 	harpoon:list():select(4)
 end, { desc = "Select Harpoon item 4" })
 
+-- Replace at specific harpoon positions
+vim.keymap.set("n", "<leader>ah", function() harpoon:list():replace_at(1) end, { desc = "Replace Harpoon item 1" })
+vim.keymap.set("n", "<leader>aj", function() harpoon:list():replace_at(2) end, { desc = "Replace Harpoon item 2" })
+vim.keymap.set("n", "<leader>ak", function() harpoon:list():replace_at(3) end, { desc = "Replace Harpoon item 3" })
+vim.keymap.set("n", "<leader>al", function() harpoon:list():replace_at(4) end, { desc = "Replace Harpoon item 4" })
+
 -- Find
 -- -----------------------------
 require("telescope").setup({
 	defaults = {
-		-- Add any custom defaults here
+		vimgrep_arguments = {
+			"rg",
+			"--color=never",
+			"--no-heading",
+			"--with-filename",
+			"--line-number",
+			"--column",
+			"--smart-case",
+			"--hidden",
+			"--glob",
+			"!.git/",
+		},
+		-- Enable hidden files for find_files picker
+		find_command = { "rg", "--files", "--hidden", "--glob", "!.git/" },
+		file_ignore_patterns = { "^.git/" },
+	},
+	pickers = {
+		find_files = {
+			hidden = true,
+		},
 	},
 	extensions = {
 		fzf = {
@@ -353,9 +380,9 @@ end, { silent = true })
 
 -- Colors
 -- -----------------------------
-require("vague").setup()
+vim.cmd.packadd("matteblack.nvim")
+require("matteblack").colorscheme()
 
-vim.cmd("colorscheme vague")
 vim.cmd(":hi statusline guibg=NONE")
 
 -- -----------------------------
