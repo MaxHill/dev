@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Create a scratch window
+tmux new-window -dn scratch
+
+# Create an opencode window
+tmux new-window -dn opencode opencode
+
+# Start vim in the main window
+nvim .
