@@ -3,6 +3,7 @@
 set -e
 
 ./install-stow.sh
+./install-scripts.sh
 ./install-configs.sh
 ./install-mise.sh
 ./install-age.sh
@@ -11,6 +12,7 @@ set -e
 ./install-neovim.sh
 ./install-opencode.sh
 ./install-wget.sh
+./install-bash-overrides.sh
 ./install-hyprland-overrides.sh
 ./install-tmux.sh
 

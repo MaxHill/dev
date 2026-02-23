@@ -19,3 +19,4 @@ else
 fi
 
 echo "Tmux installation complete!"
+echo "Note: tmux-sessionizer is installed via install-scripts.sh"
