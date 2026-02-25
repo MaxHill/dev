@@ -15,4 +15,5 @@ set -e
 ./install-bash-overrides.sh
 ./install-hyprland-overrides.sh
 ./install-tmux.sh
+./install-browsers.sh
 

@@ -3,6 +3,9 @@ require("user.types")
 ---@type Language
 local M = {}
 
+-- Prefer REPL layout for C# debugging
+M.dap_layout = 2
+
 require("omnisharp_extended")
 
 M.lsps = {
@@ -51,6 +54,15 @@ M.lsps = {
     }
 }
 
+M.filetypes = { "cs" }
+
+M.formatters = {
+    {
+        name = "csharpier",
+        mason_name = "csharpier",
+    }
+}
+
 local function find_project_root()
     local current_dir = vim.fn.expand('%:p:h')
     while current_dir ~= '/' do
@@ -88,6 +100,7 @@ vim.api.nvim_create_autocmd("FileType", {
                 end,
                 on_exit = function(_, code)
                     if code == 0 then
+                        -- Just start debugging, listener will open correct layout
                         dap.continue()
                     else
                         vim.notify("Build failed:\n" .. table.concat(output, "\n"), vim.log.levels.ERROR)

@@ -7,48 +7,35 @@ require("user.types")
 -- Plugins
 -- -----------------------------
 vim.pack.add({
-    { src = "https://github.com/tahayvr/matteblack.nvim" },
+	{ src = "https://github.com/tahayvr/matteblack.nvim" },
 	{ src = "https://github.com/echasnovski/mini.surround" },
 	{ src = "https://github.com/echasnovski/mini.comment" },
 	{ src = "https://github.com/nvim-treesitter/nvim-treesitter" },
 	{ src = "https://github.com/Saghen/blink.cmp", version = "v1.6.0" },
 	{ src = "https://github.com/L3MON4D3/LuaSnip" },
+	{ src = "https://github.com/danymat/neogen" },
 	-- LSP
 	{ src = "https://github.com/neovim/nvim-lspconfig" },
 	{ src = "https://github.com/mason-org/mason.nvim" },
 	{ src = "https://github.com/Hoffs/omnisharp-extended-lsp.nvim" },
+	-- Formatting
+	{ src = "https://github.com/stevearc/conform.nvim" },
 	-- DAP
 	{ src = "https://github.com/mfussenegger/nvim-dap" },
-	{ src = "https://github.com/igorlfs/nvim-dap-view" },
+	{ src = "https://github.com/rcarriga/nvim-dap-ui" },
+	{ src = "https://github.com/nvim-neotest/nvim-nio" }, -- Required dependency for nvim-dap-ui
 	-- Dependencies
 	{ src = "https://github.com/nvim-lua/plenary.nvim" },
 	-- Telescope
 	{ src = "https://github.com/nvim-telescope/telescope.nvim" },
-	{ src = "https://github.com/nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+	{ src = "https://github.com/nvim-telescope/telescope-fzf-native.nvim" },
 	-- Harpoon 2
 	{ src = "https://github.com/ThePrimeagen/harpoon", version = "harpoon2" },
-    -- Tmux navigation
-    { src = "https://github.com/christoomey/vim-tmux-navigator" },
+	-- Tmux navigation
+	{ src = "https://github.com/christoomey/vim-tmux-navigator" },
 })
 -- local packages
 vim.cmd.packadd("netcoredbg-macOS-arm64.nvim") -- Vendored version with improvements
-
--- Build telescope-fzf-native if needed
-vim.api.nvim_create_autocmd("User", {
-	pattern = "PackChanged",
-	callback = function(ev)
-		if ev.data.name == "telescope-fzf-native.nvim" and (ev.data.action == "install" or ev.data.action == "update") then
-			vim.notify("Building telescope-fzf-native.nvim...")
-			local result = vim.fn.system("make -C " .. ev.data.path)
-			if vim.v.shell_error == 0 then
-				vim.notify("telescope-fzf-native built successfully!")
-			else
-				vim.notify("Failed to build telescope-fzf-native: " .. result, vim.log.levels.ERROR)
-			end
-		end
-	end,
-})
-
 -- vim.pack.update()
 
 -- Mini
@@ -58,6 +45,25 @@ require("mini.surround").setup({
 		replace = "sc", -- Replace surrounding, originally sr
 	},
 })
+
+-- Neogen (documentation generator)
+require("neogen").setup({
+	enabled = true,
+	languages = {
+		typescript = {
+			template = {
+				annotation_convention = "jsdoc",
+			},
+		},
+		javascript = {
+			template = {
+				annotation_convention = "jsdoc",
+			},
+		},
+	},
+})
+
+vim.keymap.set("n", "<leader>dg", require("neogen").generate, { desc = "Generate documentation" })
 
 -- Harpoon 2
 local harpoon = require("harpoon")
@@ -127,14 +133,16 @@ require("telescope").load_extension("fzf") -- Uncomment after building fzf-nativ
 ---@type Language[]
 local languages = {
 	require("user.languages.lua"),
-	-- require("user.languages.csharp"),
+	require("user.languages.csharp"),
+	require("user.languages.zig"),
+	require("user.languages.beancount"),
 	-- require("user.languages.go"),
 	-- require("user.languages.typescript"),
 	-- require("user.languages.astro"),
 	-- require("user.languages.css"),
 	-- require("user.languages.ziggy"),
 	-- require("user.languages.html"),
-	-- require("user.languages.md")
+	require("user.languages.md")
 }
 
 -- Setup languages
@@ -144,6 +152,72 @@ for _, language in pairs(languages) do
 	end
 end
 
+-- Build DAP layout preference map from languages
+local dap_layout_map = {}
+for _, language in pairs(languages) do
+	if language.dap_layout and language.filetypes then
+		for _, ft in ipairs(language.filetypes) do
+			dap_layout_map[ft] = language.dap_layout
+		end
+	end
+end
+
+-- Mason (needed for both LSP and formatters)
+-- -----------------------------
+require("mason").setup()
+local mason_utils = require("user.mason")
+
+-- Conform (Formatting)
+-- -----------------------------
+local conform = require("conform")
+
+-- Build formatters_by_ft from language configs
+local formatters_by_ft = {}
+local custom_formatters = {}
+local formatters_to_install = {} -- Set of unique formatter packages to install
+
+for _, language in pairs(languages) do
+	if type(language.formatters) == "table" and type(language.filetypes) == "table" then
+		-- Collect unique formatters to install
+		for _, formatter_config in ipairs(language.formatters) do
+			if formatter_config.mason_name then
+				formatters_to_install[formatter_config.mason_name] = true
+			end
+
+			-- Store custom formatter options
+			if formatter_config.options then
+				custom_formatters[formatter_config.name] = formatter_config.options
+			end
+		end
+
+		-- Map formatters to filetypes
+		local formatter_names = {}
+		for _, formatter_config in ipairs(language.formatters) do
+			table.insert(formatter_names, formatter_config.name)
+		end
+
+		for _, filetype in ipairs(language.filetypes) do
+			formatters_by_ft[filetype] = formatter_names
+		end
+	end
+end
+
+-- Install unique formatters via Mason
+for formatter_name, _ in pairs(formatters_to_install) do
+	mason_utils.install(formatter_name)
+end
+
+conform.setup({
+	formatters_by_ft = formatters_by_ft,
+	formatters = custom_formatters,
+	format_on_save = {
+		timeout_ms = 1000,
+		lsp_format = "fallback", -- Use LSP formatting as fallback
+	},
+	notify_on_error = true,
+	notify_no_formatters = false, -- Less noisy for languages without formatters
+})
+
 -- Treesitter
 -- -----------------------------
 require("nvim-treesitter").setup({
@@ -151,6 +225,7 @@ require("nvim-treesitter").setup({
 	ensure_installed = {
 		"lua",
 		"c_sharp",
+		"zig",
 		"ziggy",
 		"ziggy_schema",
 		"superhtml",
@@ -167,35 +242,20 @@ require("nvim-treesitter").setup({
 	},
 })
 
-local parser_config = require("nvim-treesitter.parsers")
-
--- Install and configure each language's parsers
-for _, language in pairs(languages) do
-	if type(language.parsers) == "table" then
-		for name, config in pairs(language.parsers) do
-			parser_config.filetype_to_parsername[name] = name
-			-- Register custom parsers if config includes install_info
-			if config.install_info then
-				parser_config.get_parser_configs()[name] = config
-			end
-		end
-	end
-end
-
 vim.filetype.add({
 	extension = {
 		mdx = "mdx",
 		shtml = "superhtml",
 		ziggy = "ziggy",
 		["ziggy-schema"] = "ziggy_schema",
+		zon = "zon",
+		beancount = "beancount",
+		bean = "beancount",
 	},
 })
 
 -- LSP
 -- -----------------------------
-require("mason").setup()
-local mason_utils = require("user.mason")
-
 -- Global defaults for all servers
 function on_attach(client, bufnr)
 	-- "grn" is mapped in Normal mode to vim.lsp.buf.rename()
@@ -217,7 +277,14 @@ end
 
 vim.lsp.config("*", {
 	root_markers = { ".git", "package.json" },
-	capabilities = require("blink.cmp").get_lsp_capabilities(),
+	capabilities = (function()
+		local capabilities = require("blink.cmp").get_lsp_capabilities()
+		capabilities.textDocument.foldingRange = {
+			dynamicRegistration = false,
+			lineFoldingOnly = true,
+		}
+		return capabilities
+	end)(),
 	on_attach = on_attach,
 })
 
@@ -289,63 +356,78 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Dap
 -- -----------------------------
 local dap = require("dap")
-local dap_view = require("dap-view")
-dap_view.setup({
-	windows = {
-		terminal = {
-			hide = { "coreclr" }, -- Don't hide for any adapters
+local dapui = require("dapui")
+
+-- Minimal UI setup from article
+dapui.setup({
+	expand_lines = true,
+	controls = { enabled = false }, -- no extra play/step buttons
+	floating = { border = "rounded" },
+	render = {
+		max_type_length = 60,
+		max_value_lines = 200,
+	},
+	-- Layout 1: Default for most languages (console + scopes)
+	-- Layout 2: REPL-based for .NET, Go (repl + scopes)
+	layouts = {
+		-- Layout 1: Default (console-based output)
+		{
+			elements = {
+				{ id = "scopes", size = 0.6 }, -- 60% for variables
+				{ id = "console", size = 0.4 }, -- 40% for console output
+			},
+			size = 20,
+			position = "bottom",
+		},
+		-- Layout 2: REPL-based (for .NET, Go)
+		{
+			elements = {
+				{ id = "scopes", size = 0.6 }, -- 60% for variables
+				{ id = "repl", size = 0.4 }, -- 40% for REPL output
+			},
+			size = 20,
+			position = "bottom",
 		},
 	},
 })
 
-dap.defaults.fallback.external_terminal = {
-	command = "/usr/bin/open",
-	args = { "-a", "Terminal" },
-}
-
-dap.listeners.before.attach.dapui_config = function()
-	dap_view.open()
+-- Auto-open/close UI (layout based on language preference)
+dap.listeners.after.event_initialized["dapui_config"] = function()
+	local ft = vim.bo.filetype
+	local preferred_layout = dap_layout_map[ft] or 1  -- Default to layout 1 (console)
+	dapui.open({ layout = preferred_layout })
 end
-dap.listeners.before.launch.dapui_config = function()
-	dap_view.open()
+dap.listeners.before.event_terminated["dapui_config"] = function()
+	dapui.close()
 end
-dap.listeners.before.event_terminated.dapui_config = function()
-	dap_view.close()
-end
-dap.listeners.before.event_exited.dapui_config = function()
-	dap_view.close()
+dap.listeners.before.event_exited["dapui_config"] = function()
+	dapui.close()
 end
 
+-- Keymaps
 vim.keymap.set("n", "<leader>du", function()
-	dap_view.toggle()
-end)
+	dapui.toggle()
+end, { noremap = true, silent = true, desc = "Toggle DAP UI" })
+
+vim.keymap.set({ "n", "v" }, "<leader>dw", function()
+	require("dapui").eval(nil, { enter = true })
+end, { noremap = true, silent = true, desc = "Add word under cursor to Watches" })
+
+vim.keymap.set({ "n", "v" }, "<leader>dh", function()
+	require("dapui").eval()
+end, {
+	noremap = true,
+	silent = true,
+	desc = "Hover/eval value under cursor (quick inspection)",
+})
+
+-- Standard DAP keymaps (unchanged)
 vim.keymap.set("n", "<space>db", dap.toggle_breakpoint)
 vim.keymap.set("n", "<leader>dc", dap.continue)
 vim.keymap.set("n", "<leader>di", dap.step_into)
 vim.keymap.set("n", "<leader>do", dap.step_over)
 vim.keymap.set("n", "<space>dC", dap.run_to_cursor)
 vim.keymap.set("n", "<space>dT", dap.terminate)
-
-vim.keymap.set("n", "<leader>dw", function()
-	dap_view.add_expr(vim.fn.expand("<cword>"))
-end)
-
-vim.keymap.set("n", "<leader>df", function()
-	for _, win in ipairs(vim.api.nvim_list_wins()) do
-		local buf = vim.api.nvim_win_get_buf(win)
-		local ft = vim.api.nvim_buf_get_option(buf, "filetype")
-		if ft == "dap-view" then
-			local current_height = vim.api.nvim_win_get_height(win)
-			local max_height = vim.o.lines - 2
-			if current_height >= max_height - 5 then
-				vim.cmd("wincmd =")
-			else
-				vim.api.nvim_win_set_height(win, max_height)
-			end
-			return
-		end
-	end
-end)
 
 require("netcoredbg-macOS-arm64").setup(require("dap"))
 
@@ -416,13 +498,16 @@ vim.keymap.set("n", "n", " nzz", { desc = "Center screen when moving through res
 vim.keymap.set("n", "-", ":Ex<CR>", { desc = "Center screen when moving through results" })
 
 -- Lsp
-vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format)
+vim.keymap.set("n", "<leader>lf", function()
+	require("conform").format({ lsp_format = "fallback" })
+end, { desc = "Format buffer" })
 
 local telescope = require("telescope.builtin")
 vim.keymap.set("n", "<leader>sf", telescope.find_files, { desc = "[S]earch [F]iles" })
 vim.keymap.set("n", "<leader>sh", telescope.help_tags, { desc = "[S]earch [H]elp" })
 vim.keymap.set("n", "<leader>sg", telescope.live_grep, { desc = "[S]earch [G]rep" })
 vim.keymap.set("n", "<leader>sp", telescope.builtin, { desc = "[S]earch [P]ickers" })
+vim.keymap.set("n", "<leader>/", telescope.lsp_document_symbols, { desc = "Search symbols in current file" })
 vim.keymap.set("n", "<leader>sd", function()
 	telescope.find_files({ cwd = vim.fn.expand("%:p:h") })
 end, { desc = "[S]earch [D]irectory of current file" })
