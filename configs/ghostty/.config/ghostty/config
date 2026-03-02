@@ -2,5 +2,8 @@ title = " "
 font-size = 14
 adjust-cell-height = 30%
 
-# Matte Black theme
-theme = matte-black
+# Theme - uncomment one to switch between light/dark:
+# Light theme
+theme = Rose Pine Dawn
+# Dark theme
+# theme = matte-black

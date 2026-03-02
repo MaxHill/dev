@@ -8,6 +8,7 @@ require("user.types")
 -- -----------------------------
 vim.pack.add({
 	{ src = "https://github.com/tahayvr/matteblack.nvim" },
+	{ src = "https://github.com/rose-pine/neovim", name = "rose-pine" },
 	{ src = "https://github.com/echasnovski/mini.surround" },
 	{ src = "https://github.com/echasnovski/mini.comment" },
 	{ src = "https://github.com/nvim-treesitter/nvim-treesitter" },
@@ -462,10 +463,24 @@ end, { silent = true })
 
 -- Colors
 -- -----------------------------
-vim.cmd.packadd("matteblack.nvim")
-require("matteblack").colorscheme()
+-- Theme selection - uncomment one to switch between light/dark:
 
-vim.cmd(":hi statusline guibg=NONE")
+-- Light theme (Rose Pine Dawn)
+vim.cmd.packadd("rose-pine")
+require("rose-pine").setup({
+	variant = "dawn",
+})
+vim.cmd.colorscheme("rose-pine")
+
+-- Dark theme (Matte Black)
+-- vim.cmd.packadd("matteblack.nvim")
+-- require("matteblack").colorscheme()
+
+-- Transparency (works with any theme)
+vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
+vim.cmd("hi NormalNC guibg=NONE ctermbg=NONE")
+vim.cmd("hi SignColumn guibg=NONE ctermbg=NONE")
+vim.cmd("hi StatusLine guibg=NONE ctermbg=NONE")
 
 -- -----------------------------
 -- Keymaps
