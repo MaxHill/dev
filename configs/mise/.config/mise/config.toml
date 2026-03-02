@@ -1,4 +1,7 @@
 [tools]
 node = "25.0.0"
+pnpm = "latest"
 
+zig = "0.15.2"
 
+go = "latest"
