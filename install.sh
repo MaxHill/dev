@@ -2,6 +2,8 @@
 
 set -e
 
+./remove-apps.sh
+
 ./install-stow.sh
 ./install-scripts.sh
 ./install-configs.sh
