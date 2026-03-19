@@ -1,6 +1,7 @@
 [tools]
 node = "25.0.0"
 pnpm = "latest"
+deno = "latest"
 
 zig = "0.15.2"
 
