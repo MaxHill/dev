@@ -16,6 +16,7 @@ set -e
 ./install-wget.sh
 ./install-bash-overrides.sh
 ./install-hyprland-overrides.sh
+./install-input-overrides.sh
 ./install-tmux.sh
 ./install-browsers.sh
 
