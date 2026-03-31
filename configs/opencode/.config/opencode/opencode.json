@@ -1,4 +1,15 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "theme": "rosepine"
+  "autoupdate": true,
+  "mcp": {
+    "chrome": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-local-mcp"
+      ],
+      "enabled": true
+    }
+  }
 }

@@ -19,4 +19,5 @@ set -e
 ./install-input-overrides.sh
 ./install-tmux.sh
 ./install-browsers.sh
+./install-mproc.sh
 

@@ -3,4 +3,6 @@
 
 omarchy-webapp-remove "HEY" "Basecamp" "X" "Zoom" "Discord"
 
-sudo pacman -Rns --noconfirm obsidian
+if pacman -Qi obsidian &> /dev/null; then
+    sudo pacman -Rns --noconfirm obsidian
+fi

@@ -467,15 +467,15 @@ end, { silent = true })
 -- Theme selection - uncomment one to switch between light/dark:
 
 -- Light theme (Rose Pine Dawn)
-vim.cmd.packadd("rose-pine")
-require("rose-pine").setup({
-    variant = "dawn",
-})
-vim.cmd.colorscheme("rose-pine")
+-- vim.cmd.packadd("rose-pine")
+-- require("rose-pine").setup({
+--     variant = "dawn",
+-- })
+-- vim.cmd.colorscheme("rose-pine")
 
 -- Dark theme (Matte Black)
--- vim.cmd.packadd("matteblack.nvim")
--- require("matteblack").colorscheme()
+vim.cmd.packadd("matteblack.nvim")
+require("matteblack").colorscheme()
 
 -- Transparency (works with any theme)
 vim.cmd("hi Normal guibg=NONE ctermbg=NONE")

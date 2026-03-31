@@ -4,6 +4,12 @@ adjust-cell-height = 30%
 
 # Theme - uncomment one to switch between light/dark:
 # Light theme
-theme = Rose Pine Dawn
+# theme = Rose Pine Dawn
 # Dark theme
-# theme = matte-black
+theme = matte-black
+
+# Fix general slowness on hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
+async-backend = epoll
+
+# Auto-attach to tmux session (or create "main" session if none exists)
+command = bash -c "tmux attach || tmux new-session -A -s main"
