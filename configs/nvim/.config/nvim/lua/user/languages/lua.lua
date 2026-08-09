@@ -19,4 +19,14 @@ M.lsps = {
     }
 }
 
+M.filetypes = { "lua" }
+M.treesitter_parsers = { "lua" }
+
+M.formatters = {
+    {
+        name = "stylua",
+        mason_name = "stylua",
+    }
+}
+
 return M;

@@ -6,9 +6,11 @@
 	user = maxhill
 [core]
 	editor = /usr/bin/vim
-    excludesfile = ~/.gitignore_global
+	excludesfile = ~/.gitignore_global
+	pager = delta
 [push]
 	default = current
+	autoSetupRemote = true
 [branch]
 	autosetuprebase = always
 [pull]
@@ -32,3 +34,24 @@
 	helper = cache --timeout=3600
 [coderabbit]
 	machineId = cli/6830963b970e47eda9363b40d1e3de66
+
+# Diff / delta
+[diff]
+	algorithm = histogram
+	colorMoved = zebra
+	colorMovedWS = allow-indentation-change
+	tool = nvimdiff
+
+[difftool]
+	prompt = false
+[difftool "nvimdiff"]
+	cmd = "/usr/bin/nvim -d \"$LOCAL\" \"$REMOTE\""
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	line-numbers = true
+	side-by-side = true
+	syntax-theme = gruvbox-dark

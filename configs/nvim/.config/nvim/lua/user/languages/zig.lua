@@ -14,6 +14,7 @@ M.lsps = {
 }
 
 M.filetypes = { "zig", "zon" }
+M.treesitter_parsers = { "zig" }
 
 M.formatters = {
 	{
@@ -29,12 +30,12 @@ M.formatters = {
 --  ------------------------------------------------------------------------
 --  Helpers
 --  ------------------------------------------------------------------------
-local function root()
-	return vim.fs.root(0, { "build.zig", "build.zig.zon" }) or vim.uv.cwd()
+local function root(bufnr)
+	return vim.fs.root(bufnr or 0, { "build.zig", "build.zig.zon" })
 end
 
 local function bin_dir()
-	return root() .. "/zig-out/bin"
+	return (root() or vim.uv.cwd()) .. "/zig-out/bin"
 end
 
 local function list_executables()
@@ -87,7 +88,7 @@ local function zig_build(target, cb)
 		table.insert(cmd, target)
 	end
 
-	vim.system(cmd, { cwd = root(), text = true }, function(obj)
+	vim.system(cmd, { cwd = root() or vim.uv.cwd(), text = true }, function(obj)
 		vim.schedule(function()
 			if obj.code == 0 then
 				vim.notify("Build succeeded")
@@ -113,9 +114,23 @@ local input_args = vim.schedule_wrap(function()
 	return s == "" and {} or vim.split(s, " ")
 end)
 
+local zig_errorformat = table.concat({
+	"%E%f:%l:%c: %t%*[^:]: %m",
+	"%C%m",
+	"    %m: %f:%l:%c",
+	"%-G%.%#",
+}, ",")
+
 M.setup = function()
 	local mason_utils = require("user.mason")
 	mason_utils.install("codelldb")
+
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = { "zig", "zon" },
+		callback = function()
+			vim.opt_local.errorformat = zig_errorformat
+		end,
+	})
 
 	local dap = require("dap")
 

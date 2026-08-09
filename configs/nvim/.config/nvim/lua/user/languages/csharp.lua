@@ -16,6 +16,16 @@ M.lsps = {
             cmd = { "omnisharp", "--languageserver", "--hostPID", tostring(vim.fn.getpid()) },
             root_markers = { "*.csproj", "*.sln", ".git" },
             filetypes = { "cs" },
+            -- Custom on_attach to disable semantic tokens
+            on_attach = function(client, bufnr)
+                -- Disable semantic tokens to prevent flickering with Tree-sitter highlights
+                client.server_capabilities.semanticTokensProvider = nil
+                
+                -- Call the global on_attach (will be set in init.lua)
+                if _G.default_on_attach then
+                    _G.default_on_attach(client, bufnr)
+                end
+            end,
             handlers = {
                 ["textDocument/definition"] = function(...)
                     return require("omnisharp_extended").definition_handler(...)
@@ -55,6 +65,7 @@ M.lsps = {
 }
 
 M.filetypes = { "cs" }
+M.treesitter_parsers = { "c_sharp" }
 
 M.formatters = {
     {
@@ -74,10 +85,13 @@ local function find_project_root()
     return vim.fn.getcwd()  -- fallback to cwd if not found
 end
 
--- DAP keymap override for C# files
+-- DAP keymap override for C# files (build before debugging)
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "cs",
     callback = function()
+        vim.cmd.compiler("dotnet")
+
+        -- Override <leader>dc to build then debug
         vim.keymap.set("n", "<leader>dc", function()
             local dap = require('dap')
             local cwd = find_project_root()

@@ -1,0 +1,7 @@
+# Ignore cache and temporary files
+cache/
+*.lock
+*.log
+.notmuch/
+*.db
+*.db-*

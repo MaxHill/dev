@@ -1,0 +1,70 @@
+# Himalaya Email Client Configuration
+# Documentation: https://github.com/soywod/himalaya
+
+# Default account to use
+default-account = "macl"
+
+# HTML email rendering with w3m
+message.read.command = "w3m -T text/html"
+
+[accounts.macl]
+# Account identification
+email = "max@macl.tech"
+display-name = "Max Hill"
+
+# IMAP backend for receiving emails
+backend.type = "imap"
+backend.host = "macl.tech"
+backend.port = 993
+backend.encryption = "tls"
+backend.login = "max@macl.tech"
+# 1Password CLI integration - retrieves password securely
+backend.passwd.cmd = "op read 'op://Private/macl-tech-email/password'"
+
+# SMTP sender for sending emails
+sender.type = "smtp"
+sender.host = "macl.tech"
+sender.port = 465
+sender.encryption = "tls"
+sender.login = "max@macl.tech"
+# 1Password CLI integration - retrieves password securely
+sender.passwd.cmd = "op read 'op://Private/macl-tech-email/password'"
+
+# Folder mapping (standard IMAP folders)
+folder.inbox = "INBOX"
+folder.sent = "Sent"
+folder.drafts = "Drafts"
+folder.trash = "Trash"
+
+# Message handling
+message.send.save-copy = true
+
+# Sync settings
+sync.enable = true
+sync.interval = 300  # Sync every 5 minutes
+
+# === Second Email Account (Template) ===
+# Uncomment and configure when ready to add second account
+#
+# [accounts.second]
+# email = "your-email@domain.com"
+# display-name = "Your Name"
+#
+# backend.type = "imap"
+# backend.host = "mail.domain.com"
+# backend.port = 993
+# backend.encryption = "tls"
+# backend.login = "your-email@domain.com"
+# backend.passwd.cmd = "op read 'op://Private/second-email/password'"
+#
+# sender.type = "smtp"
+# sender.host = "mail.domain.com"
+# sender.port = 465
+# sender.encryption = "tls"
+# sender.login = "your-email@domain.com"
+# sender.passwd.cmd = "op read 'op://Private/second-email/password'"
+#
+# folder.inbox = "INBOX"
+# folder.sent = "Sent"
+# folder.drafts = "Drafts"
+# folder.trash = "Trash"

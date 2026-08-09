@@ -7,6 +7,10 @@ M.lsps = {
     {
         mason_name = "typescript-language-server",
         lsp_name = "ts_ls",
+        config = {
+            cmd = { "typescript-language-server", "--stdio" },
+            root_markers = { "tsconfig.json", "package.json" },
+        },
     },
     {
         mason_name = "svelte-language-server",

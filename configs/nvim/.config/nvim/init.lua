@@ -7,7 +7,7 @@ require("user.types")
 -- Plugins
 -- -----------------------------
 vim.pack.add({
-    { src = "https://github.com/tahayvr/matteblack.nvim" },
+    { src = "https://github.com/sainnhe/gruvbox-material" },
     { src = "https://github.com/rose-pine/neovim",                        name = "rose-pine" },
     { src = "https://github.com/echasnovski/mini.surround" },
     { src = "https://github.com/echasnovski/mini.comment" },
@@ -15,6 +15,8 @@ vim.pack.add({
     { src = "https://github.com/Saghen/blink.cmp",                        version = "v1.6.0" },
     { src = "https://github.com/L3MON4D3/LuaSnip" },
     { src = "https://github.com/danymat/neogen" },
+    { src = "https://github.com/NeogitOrg/neogit" },
+    { src = "https://github.com/sindrets/diffview.nvim" },
     -- LSP
     { src = "https://github.com/neovim/nvim-lspconfig" },
     { src = "https://github.com/mason-org/mason.nvim" },
@@ -66,6 +68,24 @@ require("neogen").setup({
 
 vim.keymap.set("n", "<leader>dg", require("neogen").generate, { desc = "Generate documentation" })
 
+-- Neogit
+local neogit = require("neogit")
+neogit.setup({
+    kind = "tab",
+    integrations = {
+        diffview = true,
+    },
+    diff_viewer = "diffview",
+})
+
+vim.keymap.set("n", "<leader>gg", "<cmd>Neogit<CR>", { desc = "Neogit status" })
+vim.keymap.set("n", "<leader>gc", function()
+    neogit.open({ "commit" })
+end, { desc = "Neogit commit" })
+vim.keymap.set("n", "<leader>gp", function()
+    neogit.open({ "push" })
+end, { desc = "Neogit push" })
+
 -- Harpoon 2
 local harpoon = require("harpoon")
 harpoon:setup({})
@@ -99,6 +119,10 @@ vim.keymap.set("n", "<leader>al", function() harpoon:list():replace_at(4) end, {
 -- -----------------------------
 require("telescope").setup({
     defaults = {
+        layout_strategy = "bottom_pane",
+        layout_config = {
+            height = 0.4,
+        },
         vimgrep_arguments = {
             "rg",
             "--color=never",
@@ -139,6 +163,7 @@ local languages = {
     require("user.languages.beancount"),
     -- require("user.languages.go"),
     require("user.languages.typescript"),
+    require("user.languages.ocaml"),
     -- require("user.languages.astro"),
     -- require("user.languages.css"),
     -- require("user.languages.ziggy"),
@@ -223,18 +248,6 @@ conform.setup({
 -- -----------------------------
 require("nvim-treesitter").setup({
     modules = {},
-    ensure_installed = {
-        "lua",
-        "c_sharp",
-        "zig",
-        "ziggy",
-        "ziggy_schema",
-        "superhtml",
-        "astro",
-        "markdown",
-        "markdown_inline",
-        "jsdoc",
-    },
     sync_install = false,
     auto_install = true,
     ignore_install = {},
@@ -242,6 +255,55 @@ require("nvim-treesitter").setup({
         enable = true,
     },
 })
+
+-- Collect filetypes and parsers declared by language configs, plus a few
+-- extras that aren't owned by any language file.
+local treesitter_install = require("user.treesitter_install")
+local treesitter_filetypes = {}
+local treesitter_parsers = {
+    lua = true,
+    c_sharp = true,
+    zig = true,
+    ziggy = true,
+    ziggy_schema = true,
+    superhtml = true,
+    astro = true,
+    markdown = true,
+    markdown_inline = true,
+    jsdoc = true,
+    ocaml = true,
+    ocaml_interface = true,
+}
+
+for _, language in pairs(languages) do
+    if type(language.filetypes) == "table" then
+        for _, filetype in ipairs(language.filetypes) do
+            treesitter_filetypes[filetype] = true
+        end
+    end
+
+    if type(language.treesitter_parsers) == "table" then
+        for _, parser in ipairs(language.treesitter_parsers) do
+            treesitter_parsers[parser] = true
+        end
+    end
+end
+
+local treesitter_patterns = {}
+for filetype, _ in pairs(treesitter_filetypes) do
+    table.insert(treesitter_patterns, filetype)
+end
+
+if #treesitter_patterns > 0 then
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = treesitter_patterns,
+        callback = function(args)
+            pcall(vim.treesitter.start, args.buf)
+        end,
+    })
+end
+
+treesitter_install.ensure_installed(vim.tbl_keys(treesitter_parsers))
 
 vim.filetype.add({
     extension = {
@@ -273,9 +335,17 @@ function on_attach(client, bufnr)
     vim.keymap.set("n", "gl", vim.diagnostic.open_float, { desc = "[G]et [L]ine diagnostics" })
     vim.keymap.set("i", "<C-h>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Show signature help" })
 
-    -- Show when LSP attaches
-    print("LSP attached: " .. client.name)
+    -- Enable inlay hints for servers that support them
+    if client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint and vim.lsp.inlay_hint.enable then
+        local ok = pcall(vim.lsp.inlay_hint.enable, true, { bufnr = bufnr })
+        if not ok then
+            pcall(vim.lsp.inlay_hint.enable, bufnr, true)
+        end
+    end
 end
+
+-- Make on_attach available globally for language configs
+_G.default_on_attach = on_attach
 
 vim.lsp.config("*", {
     root_markers = { ".git", "package.json" },
@@ -295,7 +365,10 @@ for _, language in pairs(languages) do
     if type(language.lsps) == "table" then
         for _, lsp in pairs(language.lsps) do
             if lsp.config then
-                lsp.config.on_attach = on_attach
+                -- If the language config doesn't provide on_attach, use the default
+                if not lsp.config.on_attach then
+                    lsp.config.on_attach = on_attach
+                end
                 vim.lsp.config(lsp.lsp_name, lsp.config)
             else
                 vim.lsp.config(lsp.lsp_name, { on_attach = on_attach })
@@ -464,29 +537,50 @@ end, { silent = true })
 
 -- Colors
 -- -----------------------------
--- Theme selection - uncomment one to switch between light/dark:
+-- Theme: gruvbox-material (dark, hard)
+vim.cmd.packadd("gruvbox-material")
+vim.g.gruvbox_material_background = "hard"
+vim.g.gruvbox_material_foreground = "material"
+vim.g.gruvbox_material_enable_italic = 1
+vim.cmd("colorscheme gruvbox-material")
 
--- Light theme (Rose Pine Dawn)
+-- Light theme alternative (Rose Pine Dawn) - uncomment to use:
 -- vim.cmd.packadd("rose-pine")
--- require("rose-pine").setup({
---     variant = "dawn",
--- })
+-- require("rose-pine").setup({ variant = "dawn" })
 -- vim.cmd.colorscheme("rose-pine")
-
--- Dark theme (Matte Black)
-vim.cmd.packadd("matteblack.nvim")
-require("matteblack").colorscheme()
-
--- Transparency (works with any theme)
-vim.cmd("hi Normal guibg=NONE ctermbg=NONE")
-vim.cmd("hi NormalNC guibg=NONE ctermbg=NONE")
-vim.cmd("hi SignColumn guibg=NONE ctermbg=NONE")
-vim.cmd("hi StatusLine guibg=NONE ctermbg=NONE")
 
 -- -----------------------------
 -- Keymaps
 -- -----------------------------
 vim.keymap.set("n", "<leader>o", ":update<CR> :source<CR>")
+
+-- Mise
+-- -----------------------------
+local function find_mise_root(path)
+    if not path or path == "" then
+        return vim.uv.cwd()
+    end
+
+    local config = vim.fs.find({ "mise.local.toml", "mise.toml" }, {
+        path = vim.fs.dirname(path),
+        upward = true,
+    })[1]
+
+    return config and vim.fs.dirname(config) or vim.fn.fnamemodify(path, ":p:h")
+end
+
+local function run_mise_task(task)
+    local root = find_mise_root(vim.api.nvim_buf_get_name(0))
+    vim.cmd("belowright 15new")
+    vim.fn.termopen({ "mise", "-C", root, "run", task })
+    vim.cmd.startinsert()
+end
+
+vim.keymap.set("n", "<leader>mb", ":make build<CR>", { desc = "Mise build" })
+vim.keymap.set("n", "<leader>mt", ":make test<CR>", { desc = "Mise test" })
+vim.keymap.set("n", "<leader>mr", function()
+    run_mise_task("run")
+end, { desc = "Mise run" })
 
 -- Copy/cut
 vim.keymap.set("x", "<leader>p", [["_dP]], { desc = "Paste without yank" })
@@ -544,5 +638,65 @@ autocmd("TextYankPost", {
             higroup = "IncSearch",
             timeout = 70,
         })
+    end,
+})
+
+-- Mise-aware :make (per-buffer makeprg + errorformat + quickfix cwd)
+local make_group = augroup("MakeQuickfix", {})
+autocmd({ "BufEnter", "BufFilePost" }, {
+    group = make_group,
+    pattern = "*",
+    callback = function(args)
+        if vim.bo[args.buf].buftype ~= "" then
+            return
+        end
+
+        local path = vim.api.nvim_buf_get_name(args.buf)
+        if path == "" then
+            return
+        end
+
+        local root = find_mise_root(path)
+        vim.b[args.buf].make_root = root
+        vim.api.nvim_set_option_value(
+            "makeprg",
+            string.format("mise -C %s run --raw $*", vim.fn.shellescape(root)),
+            { buf = args.buf }
+        )
+
+        -- Swallow mise's noisy task-prefix output lines like:
+        --   [taskname] $ ...
+        --   [taskname] ERROR ...
+        local errorformat = vim.api.nvim_get_option_value("errorformat", { buf = args.buf })
+        local mise_ignored_output = ",%-G[%.%#] $ %.%#,%-G[%.%#] ERROR %.%#"
+        if not errorformat:find("%%%-G%[%%%.%%#%] %$ %%.%%#", 1) then
+            vim.api.nvim_set_option_value("errorformat", errorformat .. mise_ignored_output, { buf = args.buf })
+        end
+    end,
+})
+
+autocmd("QuickFixCmdPre", {
+    group = make_group,
+    pattern = "make",
+    callback = function()
+        local root = vim.b.make_root
+        if not root or root == "" then
+            return
+        end
+        vim.w.make_prev_cwd = vim.fn.getcwd(0)
+        vim.cmd.lcd(vim.fn.fnameescape(root))
+    end,
+})
+
+autocmd("QuickFixCmdPost", {
+    group = make_group,
+    pattern = "make",
+    callback = function()
+        local prev_cwd = vim.w.make_prev_cwd
+        if prev_cwd and prev_cwd ~= "" then
+            vim.cmd.lcd(vim.fn.fnameescape(prev_cwd))
+            vim.w.make_prev_cwd = nil
+        end
+        vim.cmd.cwindow()
     end,
 })

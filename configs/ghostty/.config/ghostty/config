@@ -6,7 +6,7 @@ adjust-cell-height = 30%
 # Light theme
 # theme = Rose Pine Dawn
 # Dark theme
-theme = matte-black
+theme = gruvbox-material-dark-hard
 
 # Fix general slowness on hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
 async-backend = epoll

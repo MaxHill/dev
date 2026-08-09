@@ -9,6 +9,10 @@ set -e
 ./install-configs.sh
 ./install-mise.sh
 ./install-age.sh
+./install-sops.sh
+./install-delta.sh
+./install-vale.sh
+./install-nom.sh
 ./install-ssh.sh
 ./install-ghostty.sh
 ./install-neovim.sh
@@ -20,4 +24,4 @@ set -e
 ./install-tmux.sh
 ./install-browsers.sh
 ./install-mproc.sh
-
+./install-azure-cli.sh

@@ -8,6 +8,11 @@ M.lsps = {
     }
 }
 
+M.filetypes = { "superhtml" }
+M.treesitter_parsers = { "superhtml", "html" }
+
+-- Note: superhtml LSP handles formatting, no need for additional formatters
+
 M.setup = function()
     vim.api.nvim_create_autocmd("FileType", {
         pattern = "superhtml",
