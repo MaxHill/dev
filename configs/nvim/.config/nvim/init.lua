@@ -93,6 +93,29 @@ harpoon:setup({})
 vim.keymap.set("n", "<leader>a", function()
     harpoon:list():add()
 end, { desc = "Add file to Harpoon" })
+vim.keymap.set("x", "<leader>a", function()
+    local selection = vim.fn.getregion(vim.fn.getpos("v"), vim.fn.getpos("."), { type = vim.fn.mode() })
+    local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p")
+        :gsub("&", "&amp;")
+        :gsub("<", "&lt;")
+        :gsub(">", "&gt;")
+    local prompt_file = vim.fn.tempname() .. ".md"
+    vim.fn.writefile(vim.list_extend({ "", "", "<source-file>" .. path .. "</source-file>", "<selected-code>" }, selection), prompt_file)
+    vim.fn.writefile({ "</selected-code>" }, prompt_file, "a")
+
+    local file = vim.fn.shellescape(prompt_file)
+    local command = table.concat({
+        "file=" .. file,
+        "trap 'rm -f \"$file\"' EXIT",
+        "nvim -u NONE -i NONE --noplugin '+normal! gg' +startinsert \"$file\" || exit",
+        "question=$(<\"$file\")",
+        "[ -n \"$question\" ] || exit",
+        "opencode --pure run --model github-copilot/gpt-5.4 --variant none \"$question\""
+            .. " | bat --language markdown --style plain --paging=always",
+    }, "; ")
+
+    vim.fn.system({ "tmux", "split-window", "-h", "-l", "30%", command })
+end, { desc = "Ask OpenCode about selection" })
 vim.keymap.set("n", "<leader>e", function()
     harpoon.ui:toggle_quick_menu(harpoon:list())
 end)
