@@ -99,23 +99,37 @@ vim.keymap.set("x", "<leader>a", function()
         :gsub("&", "&amp;")
         :gsub("<", "&lt;")
         :gsub(">", "&gt;")
-    local prompt_file = vim.fn.tempname() .. ".md"
-    vim.fn.writefile(vim.list_extend({ "", "", "<source-file>" .. path .. "</source-file>", "<selected-code>" }, selection), prompt_file)
-    vim.fn.writefile({ "</selected-code>" }, prompt_file, "a")
+    local prompt = table.concat(vim.list_extend({
+        "<source-file>" .. path .. "</source-file>",
+        "<selected-code>",
+    }, vim.list_extend(selection, { "</selected-code>", "", "" })), "\n")
+    local command = "pi --model claude-sonnet-4.5 --thinking off --no-session --no-extensions --no-skills"
+        .. " --no-context-files --no-prompt-templates --no-themes"
+    local pane = vim.trim(vim.fn.system({
+        "tmux",
+        "split-window",
+        "-h",
+        "-l",
+        "30%",
+        "-d",
+        "-P",
+        "-F",
+        "#{pane_id}",
+        command,
+    }))
 
-    local file = vim.fn.shellescape(prompt_file)
-    local command = table.concat({
-        "file=" .. file,
-        "trap 'rm -f \"$file\"' EXIT",
-        "nvim -u NONE -i NONE --noplugin '+normal! gg' +startinsert \"$file\" || exit",
-        "question=$(<\"$file\")",
-        "[ -n \"$question\" ] || exit",
-        "opencode --pure run --model github-copilot/gpt-5.4 --variant none \"$question\""
-            .. " | bat --language markdown --style plain --paging=always",
-    }, "; ")
+    if vim.v.shell_error ~= 0 or pane == "" then
+        vim.notify("Failed to open Pi pane", vim.log.levels.ERROR)
+        return
+    end
 
-    vim.fn.system({ "tmux", "split-window", "-h", "-l", "30%", command })
-end, { desc = "Ask OpenCode about selection" })
+    local buffer = "pi-prompt-" .. vim.fn.getpid()
+    vim.fn.system({ "tmux", "set-buffer", "-b", buffer, prompt })
+    vim.defer_fn(function()
+        vim.fn.system({ "tmux", "paste-buffer", "-p", "-b", buffer, "-d", "-t", pane })
+        vim.fn.system({ "tmux", "select-pane", "-t", pane })
+    end, 1000)
+end, { desc = "Ask Pi about selection" })
 vim.keymap.set("n", "<leader>e", function()
     harpoon.ui:toggle_quick_menu(harpoon:list())
 end)
