@@ -5,7 +5,7 @@
       "command": [
         "npx",
         "-y",
-        "@playwright/mcp",
+        "@playwright/mcp@0.0.79",
         "--executable-path",
         "/usr/bin/chromium"
       ],
