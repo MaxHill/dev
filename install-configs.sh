@@ -11,6 +11,7 @@ cd "$CONFIGS_DIR"
 echo "Removing old config directories"
 rm -rf $HOME/.config/nvim
 rm -rf $HOME/.agents
+rm -rf $HOME/.pi
 
 echo "Stowing config directories"
 stow -t "$HOME" */

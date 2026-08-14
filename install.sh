@@ -16,8 +16,7 @@ set -e
 ./install-ssh.sh
 ./install-ghostty.sh
 ./install-neovim.sh
-./install-opencode.sh
-./install-pi.sh
+./install-ai.sh
 ./install-wget.sh
 ./install-bash-overrides.sh
 ./install-hyprland-overrides.sh
