@@ -5,6 +5,10 @@ description: Review branch changes for readability, API clarity, maintainability
 
 # Developer Experience Review
 
+Read `../review-principles/PRINCIPLES.md` before the review. Use its priority order and its full Developer Experience section as the review baseline. Also use relevant Safety and Performance principles because clear code must make correctness and cost easier to verify.
+
+Adapt TigerStyle-derived principles to the repository's language, runtime, workload, and documented standards. Preserve the purpose of a principle instead of applying a Zig-specific rule literally. Treat the 70-line function limit and zero-dependency policy as prompts unless the repository adopts them as rules.
+
 Review the changes between `HEAD` and a fixed point supplied by the user or orchestrator.
 
 ## Scope
@@ -16,14 +20,19 @@ Review the changes between `HEAD` and a fixed point supplied by the user or orch
 
 Focus on:
 
-- readability and names that communicate intent
-- cohesive modules and clear function boundaries
+- precise domain nouns and verbs without ambiguous abbreviations
+- units and qualifiers that distinguish indexes, counts, sizes, and durations
+- functions and modules that fit one mental model
+- visible control flow and centralized state transitions
+- small interfaces with unambiguous parameters and return types
+- state, validation, ownership, and cleanup close to their use
 - API usability and consistency
 - maintainability and testability
 - useful errors and diagnostics
-- comments and documentation that explain constraints and reasons
+- comments and documentation that explain why and how
+- dependency and tooling costs in the context of the project
 - unnecessary complexity and surprising behavior
-- consistency with repository conventions
+- consistency with repository conventions and automated formatting
 
 Report cross-domain findings when they materially affect developer experience. Do not suppress a finding because another reviewer might also report it.
 

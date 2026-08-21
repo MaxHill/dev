@@ -5,6 +5,10 @@ description: Review branch changes for measurable performance, scalability, late
 
 # Performance Review
 
+Read `../review-principles/PRINCIPLES.md` before the review. Use its priority order and its full Performance section as the review baseline. Also use relevant Safety and Developer Experience principles when they constrain a performance recommendation.
+
+Adapt TigerStyle-derived principles to the repository's language, runtime, workload, and documented standards. Preserve the purpose of a principle instead of applying a Zig-specific rule literally. For example, treat repeated arrays, objects, strings, closures, promises, and copies in JavaScript hot paths as allocation work.
+
 Review the changes between `HEAD` and a fixed point supplied by the user or orchestrator.
 
 ## Scope
@@ -16,13 +20,17 @@ Review the changes between `HEAD` and a fixed point supplied by the user or orch
 
 Focus on:
 
+- design-time performance and back-of-the-envelope resource sketches
+- network, disk, memory, and CPU latency and bandwidth
 - algorithmic complexity and behavior as inputs grow
-- latency and throughput on important paths
-- allocations, copying, retention, and memory pressure
+- worst-case and tail latency, not only average throughput
+- allocation in the current language, including implicit temporary values
+- copying, retention, garbage collection, and memory pressure
 - I/O, network calls, syscalls, batching, and caching
+- control-plane and data-plane separation
 - lock contention and concurrency bottlenecks
 - repeated work and avoidable computation
-- regressions that need benchmarks or profiling
+- regressions that need benchmarks, profiles, traces, or generated-code inspection
 
 Report cross-domain findings when they materially affect performance. Do not suppress a finding because another reviewer might also report it.
 

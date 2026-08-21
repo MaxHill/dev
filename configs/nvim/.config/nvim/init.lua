@@ -598,12 +598,14 @@ local function find_mise_root(path)
         return vim.uv.cwd()
     end
 
-    local config = vim.fs.find({ "mise.local.toml", "mise.toml" }, {
-        path = vim.fs.dirname(path),
+    local file_dir = vim.fn.fnamemodify(path, ":p:h")
+    local config = vim.fs.find({ ".mise.local.toml", "mise.local.toml", ".mise.toml", "mise.toml" }, {
+        path = file_dir,
         upward = true,
+        type = "file",
     })[1]
 
-    return config and vim.fs.dirname(config) or vim.fn.fnamemodify(path, ":p:h")
+    return config and vim.fs.dirname(config) or file_dir
 end
 
 local function run_mise_task(task)
