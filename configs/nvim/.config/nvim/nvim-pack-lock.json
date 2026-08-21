@@ -9,6 +9,10 @@
       "src": "https://github.com/Saghen/blink.cmp",
       "version": "'v1.6.0'"
     },
+    "catppuccin": {
+      "rev": "edefef779ab08ce1a4a404713e3012b0d202bd35",
+      "src": "https://github.com/catppuccin/nvim"
+    },
     "conform.nvim": {
       "rev": "e969e302bced7ffb9a0a0323629f31feb0ca35a6",
       "src": "https://github.com/stevearc/conform.nvim"
@@ -29,6 +33,10 @@
       "rev": "87b1a3506211538f460786c23f98ec63ad9af4e5",
       "src": "https://github.com/ThePrimeagen/harpoon",
       "version": "'harpoon2'"
+    },
+    "markdown-preview.nvim": {
+      "rev": "a923f5fc5ba36a3b17e289dc35dc17f66d0548ee",
+      "src": "https://github.com/iamcco/markdown-preview.nvim"
     },
     "mason-lspconfig.nvim": {
       "rev": "7f0bf635082bb9b7d2b37766054526a6ccafdb85",
@@ -101,6 +109,10 @@
     "plenary.nvim": {
       "rev": "b9fd5226c2f76c951fc8ed5923d85e4de065e509",
       "src": "https://github.com/nvim-lua/plenary.nvim"
+    },
+    "prr": {
+      "rev": "b3929ff88c0306ebc0e3b186bd73a015aaba0b1f",
+      "src": "https://github.com/danobi/prr"
     },
     "rose-pine": {
       "rev": "cf2a288696b03d0934da713d66c6d71557b5c997",
