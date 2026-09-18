@@ -12,7 +12,6 @@ set -e
 ./install-sops.sh
 ./install-delta.sh
 ./install-vale.sh
-./install-nom.sh
 ./install-ssh.sh
 ./install-ghostty.sh
 ./install-neovim.sh

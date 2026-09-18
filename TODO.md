@@ -32,10 +32,6 @@ Porting changes from `~/dotfiles_old/configs` into `~/dev/configs`. Work through
   - [ ] **Skipped**: aliases `lg`, `dv`, `dvd`.
   - [x] Difftool: `nvimdiff` with `/usr/bin/nvim` (Linux path), `prompt = false`.
 
-## nom
-
-- [x] Add `configs/nom/.config/nom/config.yml` stow package (path adapted from macOS `~/Library/Application Support/nom/` to Linux XDG `~/.config/nom/`). Created `install-nom.sh` (`yay -S nom`) and added to `install.sh`.
-
 ## nvim init.lua refactor
 
 - [x] Add `lua/user/treesitter_install.lua` and switch to dynamic parser install from `M.treesitter_parsers` per language.
@@ -113,7 +109,6 @@ Porting changes from `~/dotfiles_old/configs` into `~/dev/configs`. Work through
 
 ## Things current has that old doesn't (don't overwrite)
 
-- `configs/himalaya`, `configs/qutebrowser`.
 - tmux plugins: `minimal-tmux-status`, `vim-tmux-navigator`, full `tpm` checkout.
 - ghostty `matte-black` theme.
 - nvim treesitter queries: `supermd`, `supermd_inline`, `ziggy`, `ziggy_schema`.

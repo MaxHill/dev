@@ -6,6 +6,7 @@
   "defaultThinkingLevel": "minimal",
   "packages": [
     "git:github.com/MaxHill/pi-web-tools",
-    "git:github.com/MaxHill/pi-mcp"
+    "git:github.com/MaxHill/pi-mcp",
+    "npm:@plannotator/pi-extension"
   ]
 }
