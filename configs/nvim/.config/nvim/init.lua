@@ -13,6 +13,7 @@ vim.pack.add({
     { src = "https://github.com/echasnovski/mini.comment" },
     { src = "https://github.com/nvim-treesitter/nvim-treesitter" },
     { src = "https://github.com/Saghen/blink.cmp",                        version = "v1.6.0" },
+    { src = "https://github.com/DrSh4dow/blink-ai.nvim" },
     { src = "https://github.com/L3MON4D3/LuaSnip" },
     { src = "https://github.com/danymat/neogen" },
     { src = "https://github.com/sindrets/diffview.nvim" },
@@ -403,6 +404,9 @@ end
 
 -- Completion
 -- -----------------------------
+local ai = require("user.ai")
+ai.setup(require("blink-ai"))
+
 require("blink.cmp").setup({
     keymap = {
         preset = "default",
@@ -410,6 +414,18 @@ require("blink.cmp").setup({
         ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
         ["<C-e>"] = { "hide" },
         ["<C-y>"] = { "select_and_accept" },
+    },
+    sources = {
+        default = {
+            "lsp",
+            "path",
+            "snippets",
+            "buffer",
+            "ai",
+        },
+        providers = {
+            ai = ai.blink_provider(),
+        },
     },
     appearance = {
         use_nvim_cmp_as_default = false, -- Don't use nvim-cmp styling
@@ -427,6 +443,11 @@ require("blink.cmp").setup({
         },
     },
     fuzzy = {
+        sorts = {
+            ai.sort_ai_last,
+            "score",
+            "sort_text",
+        },
         prebuilt_binaries = {
             force_version = "v1.6.0", -- specify exact version here
         },
