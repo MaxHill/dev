@@ -1,16 +1,15 @@
 {
-  "mcp": {
+  "mcpServers": {
     "playwright": {
-      "type": "local",
-      "command": [
-        "npx",
+      "command": "npx",
+      "args": [
         "-y",
         "@playwright/mcp@0.0.79",
         "--executable-path",
         "/usr/bin/chromium"
       ],
-      "enabled": true,
-      "timeout": 30000
+      "timeout": 30,
+      "description": "Automate and inspect web pages with Playwright"
     }
   }
 }

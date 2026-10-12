@@ -4,9 +4,9 @@
   "defaultProvider": "github-copilot",
   "defaultModel": "gpt-5.3-codex",
   "defaultThinkingLevel": "minimal",
+  "defaultTools": ["+codemode"],
   "packages": [
     "git:github.com/MaxHill/pi-web-tools",
-    "git:github.com/MaxHill/pi-mcp",
     "npm:@plannotator/pi-extension"
   ]
 }
