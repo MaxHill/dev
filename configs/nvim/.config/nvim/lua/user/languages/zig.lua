@@ -8,6 +8,7 @@ M.lsps = {
 		mason_name = "zls",
 		lsp_name = "zls",
 		config = {
+			cmd = { "/home/maxhill/.local/share/mise/shims/zls" },
 			root_markers = { "build.zig", "build.zig.zon", ".git" },
 		},
 	},

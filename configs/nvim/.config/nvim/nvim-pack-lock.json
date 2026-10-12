@@ -4,10 +4,6 @@
       "rev": "dae4f5aaa3574bd0c2b9dd20fb9542a02c10471c",
       "src": "https://github.com/L3MON4D3/LuaSnip"
     },
-    "blink-ai.nvim": {
-      "rev": "29ded98b129378454ae19f47294b7101821516cf",
-      "src": "https://github.com/DrSh4dow/blink-ai.nvim"
-    },
     "blink.cmp": {
       "rev": "bae4bae0eedd1fa55f34b685862e94a222d5c6f8",
       "src": "https://github.com/Saghen/blink.cmp",
@@ -73,6 +69,10 @@
     "neogen": {
       "rev": "23e7e9f883d01289ebd90e98025acc860ea26366",
       "src": "https://github.com/danymat/neogen"
+    },
+    "neogit": {
+      "rev": "57c9f8ee784bcd07141bf7fa958b5c5bb1420de8",
+      "src": "https://github.com/NeogitOrg/neogit"
     },
     "nvim-dap": {
       "rev": "db321947bb289a2d4d76a32e76e4d2bd6103d7df",
