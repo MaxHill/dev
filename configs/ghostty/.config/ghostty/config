@@ -1,11 +1,8 @@
 title = " "
-font-size = 14
+font-size = 12
 adjust-cell-height = 30%
 
 # Theme - uncomment one to switch between light/dark:
-# Light theme
-# theme = Rose Pine Dawn
-# Dark theme
 theme = gruvbox-material-dark-hard
 
 # Fix general slowness on hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
@@ -13,3 +10,9 @@ async-backend = epoll
 
 # Auto-attach to tmux session (or create "main" session if none exists)
 command = bash -c "tmux attach || tmux new-session -A -s main"
+
+# Send Shift+Enter as CSI-u so TUIs can distinguish it from Enter.
+keybind = shift+enter=csi:13;2u
+
+# Legacy encoding sends Alt+Shift+Enter the same as Alt+Enter; send CSI-u so tmux can match M-S-Enter.
+keybind = alt+shift+enter=csi:13;4u

@@ -7,3 +7,9 @@ zig = "0.15.2"
 
 go = "latest"
 zls = "0.16.0"
+codex = "latest"
+pi = "latest"
+gh = "latest"
+
+[settings.upgrade]
+auto_prune = false

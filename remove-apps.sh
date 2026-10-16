@@ -1,6 +1,10 @@
 #!/bin/sh
 
-omarchy-webapp-remove "HEY" "Basecamp" "X" "Zoom" "Discord"
+set -e
+
+for app in "HEY" "Basecamp" "X" "Zoom" "Discord"; do
+    omarchy webapp remove "$app"
+done
 
 # TODO: Uninsall omarchy pi
 if pacman -Qi obsidian >/dev/null 2>&1; then

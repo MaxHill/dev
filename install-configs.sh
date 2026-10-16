@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" 
 CONFIGS_DIR="$SCRIPT_DIR/configs"
@@ -24,7 +25,7 @@ stow -t "$HOME" */
 
 # Initialize neovim to install plugins (now that config is linked)
 echo "Installing Neovim plugins..."
-nvim --headless "+lua vim.pack.update()" +qall 2>/dev/null || true
+nvim --headless "+lua vim.pack.update()" +qall
 
 # Build telescope-fzf-native
 FZF_PATH="$HOME/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim"

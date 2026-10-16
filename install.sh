@@ -6,6 +6,7 @@ set -e
 
 ./install-stow.sh
 ./install-scripts.sh
+./install-neovim.sh
 ./install-configs.sh
 ./install-mise.sh
 ./install-age.sh
@@ -14,13 +15,11 @@ set -e
 ./install-vale.sh
 ./install-ssh.sh
 ./install-ghostty.sh
-./install-neovim.sh
 ./install-ai.sh
 ./install-wget.sh
 ./install-bash-overrides.sh
 ./install-hyprland-overrides.sh
-./install-input-overrides.sh
 ./install-tmux.sh
 ./install-browsers.sh
-./install-mproc.sh
+./install-dekit.sh
 ./install-azure-cli.sh

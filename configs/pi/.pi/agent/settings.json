@@ -1,10 +1,12 @@
 {
-  "lastChangelogVersion": "1.1.0",
+  "lastChangelogVersion": "1.3.0",
   "theme": "dark",
   "defaultProvider": "github-copilot",
   "defaultModel": "gpt-5.3-codex",
   "defaultThinkingLevel": "minimal",
-  "defaultTools": ["+codemode"],
+  "defaultTools": [
+    "+codemode"
+  ],
   "packages": [
     "git:github.com/MaxHill/pi-web-tools",
     "npm:@plannotator/pi-extension"

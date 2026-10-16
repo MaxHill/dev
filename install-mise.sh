@@ -1,10 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+set -euo pipefail
 
 # Install mise package if not present
-yay -S --noconfirm --needed mise
-
-# Activate mise in current shell
-eval "$(mise activate bash)"
+yay -S --noconfirm --needed mise-bin
 
 # Install configured tools (Python, Node, etc.)
 echo "Installing mise tools from ~/.config/mise/config.toml..."

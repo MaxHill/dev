@@ -1,10 +1,7 @@
 #!/bin/sh
 
-# Remove conflicting neovim package if it exists
-if pacman -Qi neovim &> /dev/null; then
-    echo "Removing conflicting neovim package..."
-    sudo pacman -Rdd --noconfirm neovim
-fi
+set -e
 
-# Install nightly build with vim.pack support
-yay -S --needed --noconfirm neovim-nightly-bin
+# Explicitly install the stable package, including on machines without Neovim.
+# Accept replacing a conflicting nightly package in the same transaction.
+yay -S --needed --noconfirm --ask=4 neovim

@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+
+set -euo pipefail
 
 # Harnesses
 curl -fsSL https://opencode.ai/install | bash
-npm install -g --ignore-scripts @earendil-works/pi-coding-agent
-
+mise exec -- npm install -g --ignore-scripts @earendil-works/pi-coding-agent
