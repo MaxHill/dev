@@ -2,7 +2,9 @@
 
 set -e
 
-./remove-apps.sh
+# ./remove-apps.sh
+
+./install-hyprland.sh
 
 ./install-stow.sh
 ./install-scripts.sh
@@ -17,8 +19,8 @@ set -e
 ./install-ghostty.sh
 ./install-ai.sh
 ./install-wget.sh
-./install-bash-overrides.sh
-./install-hyprland-overrides.sh
+# ./install-bash-overrides.sh
+# ./install-hyprland-overrides.sh
 ./install-tmux.sh
 ./install-browsers.sh
 ./install-dekit.sh
