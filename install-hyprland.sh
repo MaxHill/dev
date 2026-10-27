@@ -25,5 +25,12 @@ rm -rf /tmp/yay
 
 
 # Install hyperland stuff
-yay -S --needed --noconfirm hyprpolkitagent wl-clipboard waybar
+yay -S --needed --noconfirm \
+    hyprpolkitagent \
+    wl-clipboard \
+    waybar \
+    hyprlauncher \
+    hypridle \
+    hyprpaper \
+    hyprlock
 
