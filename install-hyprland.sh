@@ -26,6 +26,8 @@ yay -S --needed --noconfirm \
     hyprpolkitagent \
     wl-clipboard \
     waybar \
+    pavucontrol \
+    network-manager-applet \
     hyprlauncher \
     hypridle \
     hyprpaper \
