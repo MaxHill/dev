@@ -19,9 +19,11 @@ set -e
 ./install-ghostty.sh
 ./install-ai.sh
 ./install-wget.sh
-# ./install-bash-overrides.sh
+./install-bash-overrides.sh
 # ./install-hyprland-overrides.sh
 ./install-tmux.sh
 ./install-browsers.sh
 ./install-dekit.sh
 ./install-azure-cli.sh
+./install-1password.sh
+./install-fonts.sh

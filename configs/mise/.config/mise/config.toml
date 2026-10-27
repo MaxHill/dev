@@ -1,5 +1,5 @@
 [tools]
-node = "25.0.0"
+node = "latest"
 pnpm = "latest"
 deno = "latest"
 

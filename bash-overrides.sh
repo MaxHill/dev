@@ -12,3 +12,6 @@ export PI_WEB_TOOLS_PARALLEL_ENDPOINT="https://search.parallel.ai/mcp"
 if [ -S "$XDG_RUNTIME_DIR/ssh-agent.socket" ]; then
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 fi
+
+
+eval "$(/usr/sbin/mise activate bash)"
