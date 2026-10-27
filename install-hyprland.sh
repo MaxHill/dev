@@ -2,26 +2,23 @@
 
 set -e
 
-# Get the user who ran sudo
-REAL_USER=${SUDO_USER:$USER}
-REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+if ! command -v yay >/dev/null 2>&1; then
+    sudo pacman -S --needed --noconfirm git base-devel go
 
+    rm -rf /tmp/yay
+    cd /tmp
+    git clone https://aur.archlinux.org/yay.git
+    cd yay
 
-sudo pacman -S --needed --noconfirm git base-devel go
+    # Build as the normal user. The -s/-i modes force fresh sudo prompts.
+    makepkg --noconfirm
+    sudo pacman -U --noconfirm /tmp/yay/yay-*.pkg.tar.zst
 
-rm -rf /tmp/yay
-set -e
-cd /tmp
-git clone https://aur.archlinux.org/yay.git
-cd yay
-
-makepkg -si --noconfirm
-
-# Install the build package as root
-sudo pacman -U --noconfirm /tmp/yay/yay-*.pkg.tar.zst
-
-# Cleanup
-rm -rf /tmp/yay
+    cd /
+    rm -rf /tmp/yay
+else
+    echo "yay is already installed; skipping bootstrap."
+fi
 
 
 # Install hyperland stuff

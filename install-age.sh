@@ -4,6 +4,6 @@ set -e
 
 echo "=== age Installation ==="
 
-yay -S --noconfirm --needed age
+sudo pacman -S --needed --noconfirm age
 
 echo "age installation complete!"
