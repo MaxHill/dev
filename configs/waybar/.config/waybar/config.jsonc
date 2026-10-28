@@ -8,7 +8,7 @@
     "spacing": 4, // Gaps between modules (4px)
     // Choose the order of the modules
     "modules-left": [
-        "hyprland/workspaces",
+        "ext/workspaces",
         "custom/media"
     ],
     "modules-center": ["clock"],
@@ -30,12 +30,12 @@
         "custom/power"
     ],
     // Modules configuration
-    "hyprland/workspaces": {
+    // Use the Wayland protocol; the Hyprland module sends legacy dispatch commands.
+    // Workspaces 1–10 are kept persistent by hyprland.lua.
+    "ext/workspaces": {
         "format": "{name}",
-        "sort-by-number": true,
-        "persistent-workspaces": {
-            "*": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        }
+        "sort-by-name": true,
+        "on-click": "activate"
     },
     "hyprland/language": {
         "format": "{shortDescription}",

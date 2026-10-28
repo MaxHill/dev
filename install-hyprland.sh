@@ -28,7 +28,7 @@ yay -S --needed --noconfirm \
     waybar \
     pavucontrol \
     network-manager-applet \
-    hyprlauncher \
+    rofi \
     hypridle \
     hyprpaper \
     hyprlock

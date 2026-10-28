@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -euo pipefail
+umask 077
+
+case "${1:-}" in
+    fullscreen) geometry=() ;;
+    region)
+        # Escape cancels without creating a file or changing the clipboard.
+        selection=$(slurp) || exit 0
+        [[ -n "$selection" ]] || exit 0
+        geometry=(-g "$selection")
+        ;;
+    *) echo "Usage: dev-screenshot {fullscreen|region}" >&2; exit 2 ;;
+esac
+
+pictures=""
+if command -v xdg-user-dir >/dev/null 2>&1; then
+    pictures=$(xdg-user-dir PICTURES) || true
+fi
+directory="${pictures:-$HOME/Pictures}/Screenshots"
+mkdir -p "$directory"
+file=$(mktemp "$directory/Screenshot-$(date +%Y-%m-%d_%H-%M-%S)-XXXXXX.png")
+if ! grim "${geometry[@]}" "$file"; then
+    rm -f -- "$file"
+    notify-send -u critical "Screenshot failed" "Could not capture the screen." || true
+    exit 1
+fi
+wl-copy --type image/png < "$file"
+notify-send "Screenshot saved and copied" "$file" || true

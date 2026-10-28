@@ -1,0 +1,59 @@
+/* Read on each launch. Edit these colors to change the launcher theme. */
+* {
+    background: #1a1a1a;
+    foreground: #ffffff;
+    selected-background: #333333;
+    selected-foreground: #33ccff;
+    background-color: @background;
+    text-color: @foreground;
+    spacing: 8px;
+}
+
+window {
+    width: 600px;
+    border: 1px;
+    border-color: #595959;
+    padding: 16px;
+}
+
+mainbox {
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    children: [ prompt, entry ];
+    padding: 8px;
+}
+
+entry {
+    placeholder: "Search applications…";
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+    fixed-height: false;
+    scrollbar: false;
+}
+
+element {
+    padding: 8px;
+    children: [ element-icon, element-text ];
+}
+
+element selected.normal, element selected.active {
+    background-color: @selected-background;
+    text-color: @selected-foreground;
+}
+
+element-icon {
+    size: 24px;
+    background-color: inherit;
+    text-color: inherit;
+}
+
+element-text {
+    vertical-align: 0.5;
+    background-color: inherit;
+    text-color: inherit;
+}

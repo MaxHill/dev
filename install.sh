@@ -38,3 +38,7 @@ cd "$SCRIPT_DIR"
 ./install-azure-cli.sh
 ./install-1password.sh
 ./install-fonts.sh
+./install-notifications.sh
+
+# Skip the systemd-boot menu. Hold Space during boot to show it.
+sudo bootctl set-timeout 0

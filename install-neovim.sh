@@ -2,6 +2,6 @@
 
 set -e
 
-# Explicitly install the stable package, including on machines without Neovim.
-# Accept replacing a conflicting nightly package in the same transaction.
-yay -S --needed --noconfirm --ask=4 neovim
+# Install nightly builds, as before, rather than the stable package.
+# Accept replacing a conflicting stable package in the same transaction.
+yay -S --needed --noconfirm --ask=4 neovim-nightly-bin

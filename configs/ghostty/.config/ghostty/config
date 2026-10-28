@@ -4,6 +4,7 @@ adjust-cell-height = 30%
 font-family = Maple Mono NF
 
 
+
 # Theme - uncomment one to switch between light/dark:
 theme = gruvbox-material-dark-hard
 

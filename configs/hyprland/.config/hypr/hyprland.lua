@@ -18,7 +18,7 @@ hl.monitor({
 -- Set programs that you use
 local terminal    = "ghostty"
 local fileManager = "dolphin"
-local menu        = "hyprlauncher"
+local menu        = "rofi -show drun"
 local browser     = "firefox"
 
 
@@ -33,7 +33,7 @@ local browser     = "firefox"
 --
 hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
-    hl.exec_cmd("hyprlauncher -d");
+    hl.exec_cmd("hypridle");
     hl.exec_cmd("nm-applet --indicator")
     -- hl.exec_cmd("waybar & hyprpaper & firefox")
     hl.exec_cmd("waybar")
@@ -101,7 +101,7 @@ hl.config({
         rounding_power   = 2,
 
         -- Change transparency of focused and unfocused windows
-        active_opacity   = 1.0,
+        active_opacity   = 1,
         inactive_opacity = 1.0,
 
         shadow           = {
@@ -151,6 +151,11 @@ hl.animation({ leaf = "workspaces", enabled = true, speed = 1.94, bezier = "almo
 hl.animation({ leaf = "workspacesIn", enabled = true, speed = 1.21, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "zoomFactor", enabled = true, speed = 7, bezier = "quick" })
+
+-- Keep all ten workspace buttons available through the Wayland workspace protocol.
+for i = 1, 10 do
+    hl.workspace_rule({ workspace = tostring(i), persistent = true })
+end
 
 -- Ref https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
 -- "Smart gaps" / "No gaps when only"
@@ -309,6 +314,13 @@ hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
+hl.bind(secondMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
+
+-- Screenshots: save to Pictures/Screenshots and copy to the clipboard.
+local screenshot = string.format("%q", os.getenv("HOME") .. "/.local/bin/dev-screenshot")
+hl.bind("SUPER + CTRL + 3", hl.dsp.exec_cmd(screenshot .. " fullscreen"))
+hl.bind("SUPER + CTRL + 4", hl.dsp.exec_cmd(screenshot .. " region"))
 
 --------------------------------
 ---- WINDOWS AND WORKSPACES ----

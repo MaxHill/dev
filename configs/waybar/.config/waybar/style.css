@@ -6,6 +6,8 @@
  * Adjust right-side spacing in .modules-right > widget > *.
  */
 
+@import "colors-dark.css";
+
 /* This applies to text throughout the bar. */
 * {
     font-family: "Maple Mono NF";
@@ -14,10 +16,8 @@
 
 /* This applies to the bar window, behind all modules. */
 window#waybar {
-    background-color: transparent;
-    color: #ffffff;
-    transition-property: background-color;
-    transition-duration: 0.5s;
+    background-color: @background;
+    color: @foreground;
 }
 
 /* This applies when Waybar enters its hidden state, for example after SIGUSR1
@@ -31,19 +31,20 @@ button {
     box-shadow: inset 0 -3px transparent;
     border: none;
     border-radius: 0;
+    transition: none;
 }
 
 /* This applies while the pointer is over a button. */
 button:hover {
     background: inherit;
-    box-shadow: inset 0 -3px #ffffff;
+    box-shadow: inset 0 -3px @foreground;
 }
 
 /* This applies to each module placed in modules-right in config.jsonc. */
 .modules-right > widget > * {
     min-width: 0;
     margin: 0;
-    padding: 0 6px;
+    padding: 0 12px;
 }
 
 /* This applies to the container holding the workspace buttons. */
@@ -59,7 +60,7 @@ button:hover {
     margin: 0;
     padding: 0 4px;
     background-color: transparent;
-    color: #ffffff;
+    color: @foreground;
 }
 
 /* This applies while the pointer is over a workspace button. */
@@ -70,7 +71,7 @@ button:hover {
 /* This applies to the workspace currently selected on the bar's monitor. */
 #workspaces button.active {
     background-color: #64727d;
-    box-shadow: inset 0 -3px #ffffff;
+    box-shadow: inset 0 -3px @foreground;
 }
 
 /* This applies to the clock placed in modules-center in config.jsonc. */
@@ -91,29 +92,29 @@ button:hover {
 
 /* This applies to battery modules when the configured battery is available. */
 #battery {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: @foreground;
+    color: @background;
 }
 
 /* This applies when the battery reports charging or external power is connected. */
 #battery.charging,
 #battery.plugged {
     background-color: #26a65b;
-    color: #ffffff;
+    color: @foreground;
 }
 
 /* This defines the final frame used by the critical-battery flashing animation. */
 @keyframes blink {
     to {
-        background-color: #ffffff;
-        color: #000000;
+        background-color: @foreground;
+        color: @background;
     }
 }
 
 /* This applies below the critical battery threshold in config.jsonc, unless charging. */
 #battery.critical:not(.charging) {
     background-color: #f53c3c;
-    color: #ffffff;
+    color: @foreground;
     animation-name: blink;
     animation-duration: 0.5s;
     animation-timing-function: steps(12);
@@ -124,24 +125,24 @@ button:hover {
 /* This applies when the power profile service reports performance mode. */
 #power-profiles-daemon.performance {
     background-color: #f53c3c;
-    color: #ffffff;
+    color: @foreground;
 }
 
 /* This applies when the power profile service reports balanced mode. */
 #power-profiles-daemon.balanced {
     background-color: #2980b9;
-    color: #ffffff;
+    color: @foreground;
 }
 
 /* This applies when the power profile service reports power-saving mode. */
 #power-profiles-daemon.power-saver {
     background-color: #2ecc71;
-    color: #000000;
+    color: @background;
 }
 
 /* This applies when a label has keyboard focus, not merely when it is hovered. */
 label:focus {
-    background-color: #000000;
+    background-color: @background;
 }
 
 /* This applies when the network module reports no connection. */

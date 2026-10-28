@@ -1,0 +1,82 @@
+/*
+ * Reload css with: swaync-client -rs
+ * */
+
+/* Keep the packaged layout; override colors, typography, and corners. */
+@define-color cc-bg #16191d;
+@define-color noti-bg #22272e;
+@define-color noti-bg-hover #2d343d;
+@define-color noti-bg-focus #2d343d;
+@define-color text-color #ffffff;
+@define-color text-color-disabled #a5adb8;
+@define-color noti-border-color #49515c;
+
+* {
+    font-family: "Maple Mono NF";
+    font-size: 13px;
+}
+
+.control-center {
+    background: @cc-bg;
+    color: @text-color;
+    border: 1px solid @noti-border-color;
+    border-radius: 0;
+}
+
+.notification {
+    background: @noti-bg;
+    color: @text-color;
+    border: 1px solid @noti-border-color;
+    border-radius: 0;
+    padding: 10px;
+}
+
+.notification.critical {
+    border-color: #f7768e;
+}
+
+.notification-default-action,
+.notification-action,
+.notification-group,
+.notification-group-headers,
+button {
+    border-radius: 0;
+}
+
+.notification-default-action:hover,
+.notification-action:hover,
+button:hover {
+    background: @noti-bg-hover;
+}
+
+.summary {
+    font-weight: bold;
+    color: @text-color;
+}
+
+.body {
+    color: @text-color;
+}
+
+.time {
+    color: @text-color-disabled;
+}
+
+.widget-title {
+    margin: 8px;
+    color: @text-color;
+}
+
+.widget-title > label {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.widget-dnd {
+    margin: 8px;
+    color: @text-color;
+}
+
+.widget-dnd > switch:checked {
+    background: #64727d;
+}
