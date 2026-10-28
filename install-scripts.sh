@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -7,9 +7,11 @@ echo "=== Scripts Installation ==="
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_SOURCE_DIR="$SCRIPT_DIR/scripts"
 SCRIPTS_DEST_DIR="$HOME/.local/bin"
+LUA_LIB_DEST_DIR="$HOME/.local/lib/lua"
 
-# Ensure destination directory exists
-mkdir -p "$SCRIPTS_DEST_DIR"
+# Install shared Lua modules separately from executable scripts.
+mkdir -p "$SCRIPTS_DEST_DIR" "$LUA_LIB_DEST_DIR"
+install -m 644 "$SCRIPTS_SOURCE_DIR/lib/lib.lua" "$LUA_LIB_DEST_DIR/lib.lua"
 
 # Copy all scripts from scripts/ directory
 echo "Installing scripts to ~/.local/bin..."

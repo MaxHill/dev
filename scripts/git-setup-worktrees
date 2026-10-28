@@ -1,34 +1,33 @@
-#!/usr/bin/env bash
+#!/usr/bin/env lua
 
+local lib = require("lib")
+local source_branch = arg[1] or "origin/main"
 
-source_branch="${1:-origin/main}"
+local is_bare = os.execute("test -d .bare")
+if not is_bare then
+    io.stderr:write("Error: .bare directory not found\n")
+    os.exit(1)
+end
 
-# Ensure we're in a git repo with .bare
-if [ ! -d ".bare" ]; then
-    echo "Error: .bare directory not found"
-    exit 1
-fi
+lib.exec("git fetch --all", true)
 
-git fetch --all
+local worktrees = {
+    { path = "main", description = "main worktree (detached, readonly)" },
+    { path = "work", description = "work worktree" },
+    { path = "review", description = "review worktree" },
+}
 
-# Create main worktree (readonly, detached)
-if [ ! -d "main" ]; then
-    echo "Creating main worktree (detached, readonly)..."
-    git worktree add --detach main "$source_branch"
-fi
+for _, worktree in ipairs(worktrees) do
+    local exists = os.execute("test -d " .. lib.shell_quote(worktree.path))
+    if not exists then
+        print("Creating " .. worktree.description .. "...")
+        lib.exec("git worktree add --detach " .. lib.shell_quote(worktree.path) .. " "
+            .. lib.shell_quote(source_branch), true)
+    end
+end
 
-if [ ! -d "work" ]; then
-    echo "Creating work worktree"
-    git worktree add --detach work "$source_branch"
-fi
-
-if [ ! -d "review" ]; then
-    echo "Creating review worktree"
-    git worktree add --detach review "$source_branch"
-fi
-
-
-if [ ! -f "mise.local.toml" ]; then
-    echo "Creating mise file"
-    touch mise.local.toml
-fi
+local mise_file = io.open("mise.local.toml", "a")
+if not mise_file then
+    error("Could not create mise.local.toml")
+end
+mise_file:close()

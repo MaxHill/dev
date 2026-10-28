@@ -1,11 +1,25 @@
-#!/usr/bin/env bash
+#!/usr/bin/env lua
+local lib = require("lib");
 
-if [ -z "$1" ]; then
-  echo "Error: Branch name required"
-  echo "Usage: git-nb <branch-name> [source-branch]"
-  exit 1
-fi
+local branch = arg[1]
+local source_branch = arg[2] or "origin/main"
 
-source_branch="${2:-origin/main}"
+if not branch or branch == "" then
+    io.stderr:write("Error: Branch name required\n")
+    io.stderr:write("Usage: git-nb <branch-name> [source-branch]\n")
+    os.exit(1);
+end
 
-git switch -c "$1" "$source_branch"
+if not lib.git_branch_exists(source_branch) or source_branch == "" then
+    io.stderr:write("Error: Could not find source branch: " .. source_branch .. "\n")
+    io.stderr:write("Usage: git-nb <branch-name> [source-branch]\n")
+    os.exit(1);
+end
+
+
+local command = string.format(
+    "git switch -c %s %s",
+    lib.shell_quote(branch),
+    lib.shell_quote(source_branch)
+);
+lib.exec(command, true)

@@ -3,6 +3,9 @@
 export EDITOR=nvim
 export VISUAL=nvim
 
+# Shared modules for Lua scripts; ;; preserves Lua’s default module paths.
+export LUA_PATH="$HOME/.local/lib/lua/?.lua;$HOME/.local/lib/lua/?/init.lua;;"
+
 # Keep the local scripts directory first without duplicating PATH entries.
 typeset -U path
 path=("$HOME/.local/bin" $path)

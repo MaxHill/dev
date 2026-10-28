@@ -1,352 +1,466 @@
-#!/usr/bin/env bash
-CONFIG_FILE_NAME="tmux-sessionizer.conf"
-CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/tmux-sessionizer"
-CONFIG_FILE="$CONFIG_DIR/$CONFIG_FILE_NAME"
-PANE_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-sessionizer"
-PANE_CACHE_FILE="$PANE_CACHE_DIR/panes.cache"
+#!/usr/bin/env lua
+-- User config: ${XDG_CONFIG_HOME:-$HOME/.config}/tmux-sessionizer/tmux-sessionizer.lua
+-- Return a table. Search entries are paths or { path = "~/Git", depth = 2 }.
+--
+-- return {
+--     search_paths = { "~/", { path = "~/Git", depth = 2 } },
+--     session_commands = { "nvim -c Neogit", "lazygit" }, -- -s uses 0-based indexes
+--     log = true, -- append to log_file or the default log
+--     log_file = "~/.local/share/tmux-sessionizer/tmux-sessionizer.logs",
+-- }
+--
+-- Set log = "echo" for stderr diagnostics or false to disable logging.
 
-# config file example
-# ------------------------
-# # file: ~/.config/tmux-sessionizer/tmux-sessionizer.conf
-# # If set this override the default TS_SEARCH_PATHS (~/ ~/personal ~/personal/dev/env/.config)
-# TS_SEARCH_PATHS=(~/)
-# # If set this add additional search paths to the default TS_SEARCH_PATHS
-# # The number prefix is the depth for the Path [OPTIONAL]
-# TS_EXTRA_SEARCH_PATHS=(~/ghq:3 ~/Git:3 ~/.config:2)
-# # if set this override the TS_MAX_DEPTH (1)
-# TS_MAX_DEPTH=2
-# This is not meant to override .tmux-sessionizer.  At first i thought this
-# would be a good command, but i don't think its ackshually what i want.
-#
-# Instead, its a list of commands to run on windows who's index is way outside
-# of the first 10 windows.  This allows you to create as many windows in your
-# session as you would like without having your workflow interrupted by these
-# programatic windows
-#
-# how to use:
-# tmux-sessionizer -w 0 will execute the first command in window -t 69.
-# TS_SESSION_COMMANDS=(<cmd1> <cmd2>)
-#
-# TS_LOG=true # will write logs to ~/.local/share/tmux-sessionizer/tmux-sessionizer.logs
-# TS_LOG_FILE=<file> # will write logs to <file> Defaults to ~/.local/share/tmux-sessionizer/tmux-sessionizer.logs
-# ------------------------
+local lib = require("lib")
 
-if [[ -f "$CONFIG_FILE" ]]; then
-    source "$CONFIG_FILE"
-fi
+local VERSION = "0.1.0"
+local CONFIG_DIR = (os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")) .. "/tmux-sessionizer"
+local CONFIG_FILE = CONFIG_DIR .. "/tmux-sessionizer.lua"
+local CACHE_DIR = (os.getenv("XDG_CACHE_HOME") or (os.getenv("HOME") .. "/.cache")) .. "/tmux-sessionizer"
+local CACHE_FILE = CACHE_DIR .. "/panes.cache"
 
-if [[ -f "$CONFIG_FILE_NAME" ]]; then
-    source "$CONFIG_FILE_NAME"
-fi
+local function shell_command(argv)
+    local quoted = {}
+    for index, value in ipairs(argv) do
+        quoted[index] = lib.shell_quote(tostring(value))
+    end
+    return table.concat(quoted, " ")
+end
 
-if [[ $TS_LOG != "true" ]]; then
-    if [[ -z $TS_LOG_FILE ]]; then
-        TS_LOG_FILE="$HOME/.local/share/tmux-sessionizer/tmux-sessionizer.logs"
-    fi
+local function capture(command)
+    local pipe, err = io.popen(command, "r")
+    if not pipe then
+        return nil, err
+    end
+    local output = pipe:read("*a")
+    local ok, _, code = pipe:close()
+    if not ok then
+        return nil, code
+    end
+    return output
+end
 
-    mkdir -p "$(dirname "$TS_LOG_FILE")"
-fi
+local function command_succeeds(command)
+    local ok = os.execute(command)
+    return ok == true
+end
 
-log() {
-    if [[ -z $TS_LOG ]]; then
-        return
-    elif [[ $TS_LOG == "echo" ]]; then
-        echo "$*"
-    elif [[ $TS_LOG == "file" ]]; then
-        echo "$*" >> "$TS_LOG_FILE"
-    fi
-}
+local function expand_path(path)
+    if path == "~" then
+        return os.getenv("HOME")
+    end
+    if path:sub(1, 2) == "~/" then
+        return os.getenv("HOME") .. path:sub(2)
+    end
+    return path
+end
 
-session_idx=""
-session_cmd=""
-user_selected=""
-split_type=""
-VERSION="0.1.0"
+local config = {}
+if lib.file_exists(CONFIG_FILE) then
+    local ok, loaded = pcall(dofile, CONFIG_FILE)
+    if not ok then
+        io.stderr:write("Error loading " .. CONFIG_FILE .. ": " .. tostring(loaded) .. "\n")
+        os.exit(1)
+    end
+    if type(loaded) ~= "table" then
+        io.stderr:write("Error: " .. CONFIG_FILE .. " must return a Lua table.\n")
+        os.exit(1)
+    end
+    config = loaded
+end
 
-while [[ "$#" -gt 0 ]]; do
-    case "$1" in
-    -h | --help)
-        echo "Usage: tmux-sessionizer [OPTIONS] [SEARCH_PATH]"
-        echo "Options:"
-        echo "  -h, --help             Display this help message"
-        echo "  -s, --session <name>   session command index."
-        echo "  --vsplit               Create vertical split (horizontal layout) for session command"
-        echo "  --hsplit               Create horizontal split (vertical layout) for session command"
-        exit 0
-        ;;
-    -s | --session)
-        session_idx="$2"
-        if [[ -z $session_idx ]]; then
-            echo "Session index cannot be empty"
-            exit 1
-        fi
+local log_mode = config.log or false
+local log_file = expand_path(config.log_file or (os.getenv("HOME") .. "/.local/share/tmux-sessionizer/tmux-sessionizer.logs"))
+if log_mode ~= true and log_mode ~= false and log_mode ~= "echo" then
+    io.stderr:write("Error: config.log must be true, false, or 'echo'.\n")
+    os.exit(1)
+end
+if log_mode == true then
+    local parent = log_file:match("^(.*)/[^/]+$") or "."
+    command_succeeds("mkdir -p " .. lib.shell_quote(parent))
+end
 
-        if [[ -z $TS_SESSION_COMMANDS ]]; then
-            echo "TS_SESSION_COMMANDS is not set.  Must have a command set to run when switching to a session"
-            exit 1
-        fi
+local function log(message)
+    if log_mode == "echo" then
+        io.stderr:write(message .. "\n")
+    elseif log_mode == true then
+        local file, err = io.open(log_file, "a")
+        if not file then
+            io.stderr:write("Error opening log file: " .. tostring(err) .. "\n")
+            return
+        end
+        file:write(message, "\n")
+        file:close()
+    end
+end
 
-        if [[ -z "$session_idx" || "$session_idx" -lt 0 || "$session_idx" -ge "${#TS_SESSION_COMMANDS[@]}" ]]; then
-            echo "Error: Invalid index. Please provide an index between 0 and $((${#TS_SESSION_COMMANDS[@]} - 1))."
-            exit 1
-        fi
+local function usage()
+    print("Usage: tmux-sessionizer [OPTIONS] [SEARCH_PATH]")
+    print("Options:")
+    print("  -h, --help             Display this help message")
+    print("  -s, --session <index>  Run configured session command (0-based index)")
+    print("  --vsplit               Create a vertical split for the session command")
+    print("  --hsplit               Create a horizontal split for the session command")
+    print("  -v, --version          Display version")
+end
 
-        session_cmd="${TS_SESSION_COMMANDS[$session_idx]}"
-
-        shift
-        ;;
-    --vsplit)
-        split_type="vsplit"
-        ;;
-    --hsplit)
-        split_type="hsplit"
-        ;;
-    -v | --version)
-        echo "tmux-sessionizer version $VERSION"
-        exit 0
-        ;;
-    *)
-        user_selected="$1"
-        ;;
-    esac
-    shift
-done
-
-log "tmux-sessionizer($VERSION): idx=$session_idx cmd=$session_cmd user_selected=$user_selected split_type=$split_type log=$TS_LOG log_file=$TS_LOG_FILE"
-
-# Validate split options are only used with session commands
-if [[ -n "$split_type" && -z "$session_idx" ]]; then
-    echo "Error: --vsplit and --hsplit can only be used with -s/--session option"
-    exit 1
-fi
-
-sanity_check() {
-    if ! command -v tmux &>/dev/null; then
-        echo "tmux is not installed. Please install it first."
-        exit 1
-    fi
-
-    if ! command -v fzf &>/dev/null; then
-        echo "fzf is not installed. Please install it first."
-        exit 1
-    fi
-}
-
-switch_to() {
-    if [[ -z $TMUX ]]; then
-        log "attaching to session $1"
-        tmux attach-session -t "$1"
+local session_index
+local session_command
+local user_selected
+local split_type
+local index = 1
+while index <= #arg do
+    local option = arg[index]
+    if option == "-h" or option == "--help" then
+        usage()
+        os.exit(0)
+    elseif option == "-v" or option == "--version" then
+        print("tmux-sessionizer version " .. VERSION)
+        os.exit(0)
+    elseif option == "-s" or option == "--session" then
+        index = index + 1
+        session_index = arg[index]
+        if not session_index or session_index == "" then
+            io.stderr:write("Session index cannot be empty.\n")
+            os.exit(1)
+        end
+        if not tonumber(session_index) or tonumber(session_index) < 0 or tonumber(session_index) % 1 ~= 0 then
+            io.stderr:write("Error: Invalid session command index.\n")
+            os.exit(1)
+        end
+        local commands = config.session_commands or {}
+        if type(commands) ~= "table" or #commands == 0 then
+            io.stderr:write("session_commands is not set in " .. CONFIG_FILE .. ".\n")
+            os.exit(1)
+        end
+        local command = commands[tonumber(session_index) + 1]
+        if not command then
+            io.stderr:write("Error: Invalid index. Please provide an index between 0 and " .. (#commands - 1) .. ".\n")
+            os.exit(1)
+        end
+        session_command = command
+    elseif option == "--vsplit" then
+        split_type = "vsplit"
+    elseif option == "--hsplit" then
+        split_type = "hsplit"
     else
-        log "switching to session $1"
-        tmux switch-client -t "$1"
-    fi
-}
+        user_selected = option
+    end
+    index = index + 1
+end
 
-has_session() {
-    tmux list-sessions | grep -q "^$1:"
-}
+if split_type and not session_index then
+    io.stderr:write("Error: --vsplit and --hsplit can only be used with -s/--session.\n")
+    os.exit(1)
+end
 
-hydrate() {
-    if [[ ! -z $session_cmd ]]; then
-        log "skipping hydrate for $1 -- using \"$session_cmd\" instead"
-        return
-    elif [ -f "$2/.tmux-sessionizer" ]; then
-        log "sourcing(local) $2/.tmux-sessionizer"
-        tmux send-keys -t "$1" "source $2/.tmux-sessionizer" c-M
-    elif [ -f "$HOME/.tmux-sessionizer" ]; then
-        log "sourcing(global) $HOME/.tmux-sessionizer"
-        tmux send-keys -t "$1" "source $HOME/.tmux-sessionizer" c-M
-    fi
-}
+log(string.format("tmux-sessionizer(%s): idx=%s cmd=%s user_selected=%s split_type=%s", VERSION,
+    tostring(session_index), tostring(session_command), tostring(user_selected), tostring(split_type)))
 
-is_tmux_running() {
-    tmux_running=$(pgrep tmux)
+local function require_program(program)
+    if not lib.program_exists(program) then
+        io.stderr:write(program .. " is not installed. Please install it first.\n")
+        os.exit(1)
+    end
+end
 
-    if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-        return 1
-    fi
-    return 0
-}
+local function tmux(args)
+    return shell_command({ "tmux", table.unpack(args) })
+end
 
-init_pane_cache() {
-    mkdir -p "$PANE_CACHE_DIR"
-    touch "$PANE_CACHE_FILE"
-}
+local function tmux_exec(args)
+    lib.exec(tmux(args), true)
+end
 
-get_pane_id() {
-    local session_idx="$1"
-    local split_type="$2"
-    init_pane_cache
-    grep "^${session_idx}:${split_type}:" "$PANE_CACHE_FILE" | cut -d: -f3
-}
+local function tmux_output(args)
+    local output, err = capture(tmux(args) .. " 2>/dev/null")
+    return output, err
+end
 
-set_pane_id() {
-    local session_idx="$1"
-    local split_type="$2"
-    local pane_id="$3"
-    init_pane_cache
+local function current_session()
+    local output, err = tmux_output({ "display-message", "-p", "#S" })
+    if not output then
+        error("Could not get current tmux session: " .. tostring(err))
+    end
+    return output:gsub("[\r\n]+$", "")
+end
 
-    # Remove existing entry if it exists
-    grep -v "^${session_idx}:${split_type}:" "$PANE_CACHE_FILE" > "${PANE_CACHE_FILE}.tmp" 2>/dev/null || true
-    mv "${PANE_CACHE_FILE}.tmp" "$PANE_CACHE_FILE"
+local function list_sessions()
+    local output = tmux_output({ "list-sessions", "-F", "[TMUX] #{session_name}" })
+    local sessions = {}
+    if output then
+        for line in output:gmatch("[^\r\n]+") do
+            sessions[#sessions + 1] = line
+        end
+    end
+    return sessions
+end
 
-    # Add new entry
-    echo "${session_idx}:${split_type}:${pane_id}" >> "$PANE_CACHE_FILE"
-}
+local function has_session(name)
+    return command_succeeds(tmux({ "has-session", "-t=" .. name }) .. " >/dev/null 2>&1")
+end
 
-cleanup_dead_panes() {
-    init_pane_cache
-    local temp_file="${PANE_CACHE_FILE}.tmp"
-
-    while IFS=: read -r idx split pane_id; do
-        if tmux list-panes -a -F "#{pane_id}" 2>/dev/null | grep -q "^${pane_id}$"; then
-            echo "${idx}:${split}:${pane_id}" >> "$temp_file"
-        fi
-    done < "$PANE_CACHE_FILE"
-
-    mv "$temp_file" "$PANE_CACHE_FILE" 2>/dev/null || touch "$PANE_CACHE_FILE"
-}
-
-sanity_check
-
-# if TS_SEARCH_PATHS is not set use default
-[[ -n "$TS_SEARCH_PATHS" ]] || TS_SEARCH_PATHS=(~/ ~/personal ~/personal/dev/env/.config)
-
-# Add any extra search paths to the TS_SEARCH_PATHS array
-# e.g : EXTRA_SEARCH_PATHS=("$HOME/extra1:4" "$HOME/extra2")
-# note : Path can be suffixed with :number to limit or extend the depth of the search for the Path
-
-if [[ ${#TS_EXTRA_SEARCH_PATHS[@]} -gt 0 ]]; then
-    TS_SEARCH_PATHS+=("${TS_EXTRA_SEARCH_PATHS[@]}")
-fi
-
-# utility function to find directories
-find_dirs() {
-    # list TMUX sessions
-    if [[ -n "${TMUX}" ]]; then
-        current_session=$(tmux display-message -p '#S')
-        tmux list-sessions -F "[TMUX] #{session_name}" 2>/dev/null | grep -vFx "[TMUX] $current_session"
+local function switch_to(target)
+    if os.getenv("TMUX") then
+        log("switching to session " .. target)
+        tmux_exec({ "switch-client", "-t", target })
     else
-        tmux list-sessions -F "[TMUX] #{session_name}" 2>/dev/null
-    fi
+        log("attaching to session " .. target)
+        tmux_exec({ "attach-session", "-t", target })
+    end
+end
 
-    # note: TS_SEARCH_PATHS is an array of paths to search for directories
-    # if the path ends with :number, it will search for directories with a max depth of number ;)
-    # if there is no number, it will search for directories with a max depth defined by TS_MAX_DEPTH or 1 if not set
-    for entry in "${TS_SEARCH_PATHS[@]}"; do
-        # Check if entry as :number as suffix then adapt the maxdepth parameter
-        if [[ "$entry" =~ ^([^:]+):([0-9]+)$ ]]; then
-            path="${BASH_REMATCH[1]}"
-            depth="${BASH_REMATCH[2]}"
+local function hydrate(target, path)
+    if session_command then
+        log('skipping hydrate for ' .. target .. ' -- using "' .. session_command .. '" instead')
+        return
+    end
+    local local_config = path and (path:gsub("/+$", "") .. "/.tmux-sessionizer")
+    local hydrate_file
+    if local_config and lib.file_exists(local_config) then
+        hydrate_file = local_config
+        log("sourcing(local) " .. hydrate_file)
+    elseif lib.file_exists(os.getenv("HOME") .. "/.tmux-sessionizer") then
+        hydrate_file = os.getenv("HOME") .. "/.tmux-sessionizer"
+        log("sourcing(global) " .. hydrate_file)
+    end
+    if hydrate_file then
+        tmux_exec({ "send-keys", "-t", target, "source " .. lib.shell_quote(hydrate_file), "c-M" })
+    end
+end
+
+local function tmux_is_running()
+    if os.getenv("TMUX") then
+        return true
+    end
+    return command_succeeds("pgrep tmux >/dev/null 2>&1")
+end
+
+local function initialize_cache()
+    command_succeeds("mkdir -p " .. lib.shell_quote(CACHE_DIR))
+    local file = io.open(CACHE_FILE, "a")
+    if not file then
+        error("Could not open tmux-sessionizer pane cache: " .. CACHE_FILE)
+    end
+    file:close()
+end
+
+local function read_cache()
+    initialize_cache()
+    local entries = {}
+    local file = io.open(CACHE_FILE, "r")
+    for line in file:lines() do
+        local idx, split, pane_id = line:match("^([^:]+):([^:]+):([^:]+)$")
+        if idx then
+            entries[#entries + 1] = { index = idx, split = split, pane_id = pane_id }
+        end
+    end
+    file:close()
+    return entries
+end
+
+local function write_cache(entries)
+    local temp_path = CACHE_FILE .. ".tmp"
+    local file, err = io.open(temp_path, "w")
+    if not file then
+        error("Could not write pane cache: " .. tostring(err))
+    end
+    for _, entry in ipairs(entries) do
+        file:write(entry.index, ":", entry.split, ":", entry.pane_id, "\n")
+    end
+    file:close()
+    local ok, rename_err = os.rename(temp_path, CACHE_FILE)
+    if not ok then
+        os.remove(temp_path)
+        error("Could not replace pane cache: " .. tostring(rename_err))
+    end
+end
+
+local function all_pane_ids()
+    local output = tmux_output({ "list-panes", "-a", "-F", "#{pane_id}" }) or ""
+    local ids = {}
+    for pane_id in output:gmatch("[^\r\n]+") do
+        ids[pane_id] = true
+    end
+    return ids
+end
+
+local function cleanup_dead_panes()
+    local live = all_pane_ids()
+    local remaining = {}
+    for _, entry in ipairs(read_cache()) do
+        if live[entry.pane_id] then
+            remaining[#remaining + 1] = entry
+        end
+    end
+    write_cache(remaining)
+end
+
+local function cached_pane(session, split)
+    for _, entry in ipairs(read_cache()) do
+        if entry.index == session and entry.split == split then
+            return entry.pane_id
+        end
+    end
+end
+
+local function save_pane(session, split, pane_id)
+    local entries = {}
+    for _, entry in ipairs(read_cache()) do
+        if entry.index ~= session or entry.split ~= split then
+            entries[#entries + 1] = entry
+        end
+    end
+    entries[#entries + 1] = { index = session, split = split, pane_id = pane_id }
+    write_cache(entries)
+end
+
+local function search_entries()
+    local configured = config.search_paths
+    if configured == nil then
+        configured = { "~/", "~/personal", "~/personal/dev/env/.config" }
+    end
+    if type(configured) ~= "table" then
+        error("config.search_paths must be a table")
+    end
+
+    local entries = {}
+    for _, entry in ipairs(configured) do
+        local path, depth
+        if type(entry) == "string" then
+            path, depth = entry, 1
+        elseif type(entry) == "table" then
+            path, depth = entry.path, entry.depth or 1
         else
-            path="$entry"
-            depth=""
-        fi
+            error("search_paths entries must be strings or tables with a path field")
+        end
+        if type(path) ~= "string" or path == "" then
+            error("search_paths entry must provide a non-empty path")
+        end
+        depth = tonumber(depth)
+        if not depth or depth < 0 or depth % 1 ~= 0 then
+            error("search_paths depth must be a non-negative integer")
+        end
+        entries[#entries + 1] = { path = expand_path(path), depth = depth }
+    end
+    return entries
+end
 
-        if [[ -d "$path" ]]; then
-            if [[ "$depth" == "0" ]]; then
-                echo "$path"
+local function find_directories()
+    local directories, seen = {}, {}
+    local current
+    if os.getenv("TMUX") then
+        current = current_session()
+    end
+    for _, session in ipairs(list_sessions()) do
+        local name = session:match("^%[TMUX%] (.+)$")
+        if name and name ~= current and not seen[session] then
+            directories[#directories + 1] = session
+            seen[session] = true
+        end
+    end
+
+    for _, entry in ipairs(search_entries()) do
+        local path = entry.path
+        if command_succeeds("test -d " .. lib.shell_quote(path)) then
+            local output
+            if entry.depth == 0 then
+                output = path .. "\n"
             else
-                find "$path" -mindepth 1 -maxdepth "${depth:-${TS_MAX_DEPTH:-1}}" -path '*/.git' -prune -o -type d -print
-            fi
-        fi
-    done
-}
+                local find = { "find", path, "-mindepth", "1", "-maxdepth", entry.depth,
+                    "-path", "*/.git", "-prune", "-o", "-type", "d", "-print" }
+                output = capture(shell_command(find) .. " 2>/dev/null") or ""
+            end
+            for directory in output:gmatch("[^\r\n]+") do
+                if not seen[directory] then
+                    directories[#directories + 1] = directory
+                    seen[directory] = true
+                end
+            end
+        end
+    end
+    return directories
+end
 
-handle_session_cmd() {
-    log "executing session command $session_cmd with index $session_idx split_type=$split_type"
-    if ! is_tmux_running; then
-        echo "Error: tmux is not running.  Please start tmux first before using session commands."
-        exit 1
-    fi
+local function basename(path)
+    path = path:gsub("/+$", "")
+    return path:match("([^/]+)$") or path
+end
 
-    current_session=$(tmux display-message -p '#S')
+local function handle_window_command(session)
+    local target = session .. ":" .. tostring(69 + tonumber(session_index))
+    if has_session(target) then
+        switch_to(target)
+        return
+    end
+    tmux_exec({ "neww", "-dt", target, session_command })
+    hydrate(target, user_selected)
+    tmux_exec({ "select-window", "-t", target })
+end
 
-    if [[ -n "$split_type" ]]; then
-        handle_split_session_cmd "$current_session"
-    else
-        handle_window_session_cmd "$current_session"
-    fi
-    exit 0
-}
-
-handle_window_session_cmd() {
-    local current_session="$1"
-    start_index=$((69 + $session_idx))
-    target="$current_session:$start_index"
-
-    log "target: $target command $session_cmd has-session=$(tmux has-session -t="$target" 2> /dev/null)"
-    if tmux has-session -t="$target" 2> /dev/null; then
-        switch_to "$target"
-    else
-        log "executing session command: tmux neww -dt $target $session_cmd"
-        tmux neww -dt $target "$session_cmd"
-        hydrate "$target" "$selected"
-        tmux select-window -t $target
-    fi
-}
-
-handle_split_session_cmd() {
-    local current_session="$1"
-    cleanup_dead_panes
-
-    # Check if pane already exists
-    local existing_pane_id=$(get_pane_id "$session_idx" "$split_type")
-
-    if [[ -n "$existing_pane_id" ]] && tmux list-panes -a -F "#{pane_id}" 2>/dev/null | grep -q "^${existing_pane_id}$"; then
-        log "switching to existing pane $existing_pane_id"
-        tmux select-pane -t "$existing_pane_id"
-        if [[ -z $TMUX ]]; then
-            tmux attach-session -t "$current_session"
+local function handle_split_command(session)
+    cleanup_dead_panes()
+    local pane_id = cached_pane(session_index, split_type)
+    local live = all_pane_ids()
+    if pane_id and live[pane_id] then
+        log("switching to existing pane " .. pane_id)
+        tmux_exec({ "select-pane", "-t", pane_id })
+        if os.getenv("TMUX") then
+            tmux_exec({ "switch-client", "-t", session })
         else
-            tmux switch-client -t "$current_session"
-        fi
+            tmux_exec({ "attach-session", "-t", session })
+        end
+        return
+    end
+
+    local flag = split_type == "vsplit" and "-h" or "-v"
+    local cwd = assert(capture("pwd")):gsub("[\r\n]+$", "")
+    local output = lib.run(tmux({ "split-window", flag, "-c", cwd, "-P", "-F", "#{pane_id}", session_command }))
+    local new_pane = output:gsub("[\r\n]+$", "")
+    if new_pane ~= "" then
+        save_pane(session_index, split_type, new_pane)
+        log("created pane " .. new_pane .. " for session_idx=" .. session_index .. " split_type=" .. split_type)
+    end
+end
+
+local function run_session_command()
+    if not tmux_is_running() then
+        io.stderr:write("Error: tmux is not running. Start tmux before using session commands.\n")
+        os.exit(1)
+    end
+    local session = current_session()
+    if split_type then
+        handle_split_command(session)
     else
-        # Create new split
-        local split_flag=""
-        if [[ "$split_type" == "vsplit" ]]; then
-            split_flag="-h"  # horizontal layout (vertical split)
-        else
-            split_flag="-v"  # vertical layout (horizontal split)
-        fi
+        handle_window_command(session)
+    end
+end
 
-        log "creating new split: tmux split-window $split_flag -c $(pwd) $session_cmd"
-        local new_pane_id=$(tmux split-window $split_flag -c "$(pwd)" -P -F "#{pane_id}" "$session_cmd")
+require_program("tmux")
+require_program("fzf")
 
-        if [[ -n "$new_pane_id" ]]; then
-            set_pane_id "$session_idx" "$split_type" "$new_pane_id"
-            log "created pane $new_pane_id for session_idx=$session_idx split_type=$split_type"
-        fi
-    fi
-}
+if session_command then
+    run_session_command()
+    os.exit(0)
+end
 
-if [[ ! -z $session_cmd ]]; then
-    handle_session_cmd
-elif [[ ! -z $user_selected ]]; then
-    selected="$user_selected"
-else
-    selected=$(find_dirs | fzf)
-fi
+local selected = user_selected
+if not selected then
+    selected = lib.fzf({ items = find_directories() })
+end
+if not selected or selected == "" then
+    os.exit(0)
+end
 
-if [[ -z $selected ]]; then
-    exit 0
-fi
+local session_name = selected:match("^%[TMUX%] (.+)$")
+if session_name then
+    switch_to(session_name)
+    os.exit(0)
+end
+session_name = basename(selected):gsub("%.", "_")
 
-if [[ "$selected" =~ ^\[TMUX\]\ (.+)$ ]]; then
-    selected="${BASH_REMATCH[1]}"
-fi
-
-selected_name=$(basename "$selected" | tr . _)
-
-if ! is_tmux_running; then
-    tmux new-session -ds "$selected_name" -c "$selected"
-    hydrate "$selected_name" "$selected"
-fi
-
-if ! has_session "$selected_name"; then
-    tmux new-session -ds "$selected_name" -c "$selected"
-    hydrate "$selected_name" "$selected"
-fi
-
-switch_to "$selected_name"
-
+if not tmux_is_running() or not has_session(session_name) then
+    tmux_exec({ "new-session", "-d", "-s", session_name, "-c", selected })
+    hydrate(session_name, selected)
+end
+switch_to(session_name)

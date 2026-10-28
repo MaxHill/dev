@@ -1,30 +1,52 @@
-#!/bin/bash
+#!/usr/bin/env lua
 
-set -euo pipefail
-umask 077
+local lib = require("lib")
 
-case "${1:-}" in
-    fullscreen) geometry=() ;;
-    region)
-        # Escape cancels without creating a file or changing the clipboard.
-        selection=$(slurp) || exit 0
-        [[ -n "$selection" ]] || exit 0
-        geometry=(-g "$selection")
-        ;;
-    *) echo "Usage: dev-screenshot {fullscreen|region}" >&2; exit 2 ;;
-esac
+local mode = arg[1]
+if mode ~= "fullscreen" and mode ~= "region" then
+    io.stderr:write("Usage: dev-screenshot {fullscreen|region}\n")
+    os.exit(2)
+end
 
-pictures=""
-if command -v xdg-user-dir >/dev/null 2>&1; then
-    pictures=$(xdg-user-dir PICTURES) || true
-fi
-directory="${pictures:-$HOME/Pictures}/Screenshots"
-mkdir -p "$directory"
-file=$(mktemp "$directory/Screenshot-$(date +%Y-%m-%d_%H-%M-%S)-XXXXXX.png")
-if ! grim "${geometry[@]}" "$file"; then
-    rm -f -- "$file"
-    notify-send -u critical "Screenshot failed" "Could not capture the screen." || true
-    exit 1
-fi
-wl-copy --type image/png < "$file"
-notify-send "Screenshot saved and copied" "$file" || true
+local geometry
+if mode == "region" then
+    local ok, selection = pcall(lib.run, "slurp")
+    if not ok or not selection or selection:gsub("%s+$", "") == "" then
+        -- Escape cancels without creating a file or changing the clipboard.
+        os.exit(0)
+    end
+    geometry = selection:gsub("[\r\n]+$", "")
+end
+
+local pictures = ""
+if lib.program_exists("xdg-user-dir") then
+    local ok, result = pcall(lib.run, "xdg-user-dir PICTURES")
+    if ok then
+        pictures = result:gsub("[\r\n]+$", "")
+    end
+end
+local directory = (pictures ~= "" and pictures or (os.getenv("HOME") .. "/Pictures")) .. "/Screenshots"
+lib.exec("mkdir -m 700 -p " .. lib.shell_quote(directory), true)
+
+local timestamp = os.date("%Y-%m-%d_%H-%M-%S")
+local template = directory .. "/Screenshot-" .. timestamp .. "-XXXXXX.png"
+local file = lib.run("mktemp " .. lib.shell_quote(template)):gsub("[\r\n]+$", "")
+
+local capture = "grim"
+if geometry then
+    capture = capture .. " -g " .. lib.shell_quote(geometry)
+end
+capture = capture .. " " .. lib.shell_quote(file)
+local captured = os.execute(capture)
+if not captured then
+    os.remove(file)
+    pcall(lib.exec, "notify-send -u critical " .. lib.shell_quote("Screenshot failed") .. " " .. lib.shell_quote("Could not capture the screen."), true)
+    os.exit(1)
+end
+
+local copied = os.execute("wl-copy --type image/png < " .. lib.shell_quote(file))
+if not copied then
+    io.stderr:write("Screenshot saved, but clipboard copy failed: " .. file .. "\n")
+    os.exit(1)
+end
+pcall(lib.exec, "notify-send " .. lib.shell_quote("Screenshot saved and copied") .. " " .. lib.shell_quote(file), true)

@@ -1,0 +1,68 @@
+#!/usr/bin/env lua
+
+local lib = require("lib")
+
+if not lib.program_exists("fzf") then
+    io.stderr:write("Error: fzf is required. Install it with ./install-fzf.sh\n")
+    os.exit(1)
+end
+
+--  ------------------------------------------------------------------------
+--  Get git branches
+--  ------------------------------------------------------------------------
+local output = lib.run("git branch --all --format='%(refname)'")
+local branches = {}
+local remote_branches = {}
+
+for ref in output:gmatch("[^\r\n]+") do
+    if ref:match("^refs/heads/") then
+        branches[ref:gsub("^refs/heads/", "")] = true
+    elseif ref:match("^refs/remotes/origin/") and ref ~= "refs/remotes/origin/HEAD" then
+        local branch = ref:gsub("^refs/remotes/origin/", "")
+        remote_branches[branch] = true
+    end
+end
+
+local candidates = {}
+for branch in pairs(branches) do
+    candidates[#candidates + 1] = branch
+end
+for branch in pairs(remote_branches) do
+    if not branches[branch] then
+        candidates[#candidates + 1] = "origin/" .. branch
+    end
+end
+table.sort(candidates)
+
+if #candidates == 0 then
+    io.stderr:write("Error: No branches found. Run this inside a Git repository.\n")
+    os.exit(1)
+end
+
+--  ------------------------------------------------------------------------
+--  Select branch with fzf
+--  ------------------------------------------------------------------------
+local selected, query = lib.fzf({
+    items = candidates,
+    print_query = true,
+})
+
+if selected and selected ~= "" then
+    if not branches[selected] and selected:match("^origin/") then
+        lib.exec("git switch --track " .. lib.shell_quote(selected), true)
+    else
+        lib.exec("git switch " .. lib.shell_quote(selected), true)
+    end
+elseif query and query ~= "" then
+    -- No item matched the query. Create the requested branch from the mainline
+    -- by delegating to the existing git-nb command.
+    if not lib.program_exists("git-nb") then
+        io.stderr:write("Error: git-nb is required to create a branch. Run ./install-scripts.sh\n")
+        os.exit(1)
+    end
+    local base_branch = lib.git_base_branch()
+    lib.exec("git-nb " .. lib.shell_quote(query) .. " " .. lib.shell_quote(base_branch), true)
+else
+    -- fzf exits non-zero when cancelled or when there is no selection.
+    os.exit(0)
+end

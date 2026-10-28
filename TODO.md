@@ -88,9 +88,10 @@ Porting changes from `~/dotfiles_old/configs` into `~/dev/configs`. Work through
 - [ ] **Skipped**: remove TPM block (breaks current plugins).
 - [ ] **Skipped**: sessionizer path changes and daily-note/TODO bindings (handled elsewhere).
 
-## tmux-sessionizer.conf
+## tmux-sessionizer.lua
 
-- [ ] **Skipped** — current config is correct for this machine (old paths were macOS-specific: `~/dotfiles`, `~/mhc`).
+- [x] Move application settings to the user-level Lua config at `${XDG_CONFIG_HOME:-$HOME/.config}/tmux-sessionizer/tmux-sessionizer.lua`.
+- [x] Keep `~/.tmux-sessionizer` and project `.tmux-sessionizer` as tmux hydration command files.
 
 ## opencode.json
 
