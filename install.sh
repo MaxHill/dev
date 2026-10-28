@@ -23,14 +23,16 @@ cd "$SCRIPT_DIR"
 ./install-stow.sh
 ./install-scripts.sh
 ./install-neovim.sh
+./install-shell.sh
+./install-fzf.sh
 ./install-configs.sh
 ./install-mise.sh
 ./install-delta.sh
 ./install-vale.sh
 ./install-ghostty.sh
+./install-kitty.sh
 ./install-ai.sh
 ./install-wget.sh
-./install-bash-overrides.sh
 # ./install-hyprland-overrides.sh
 ./install-tmux.sh
 ./install-browsers.sh

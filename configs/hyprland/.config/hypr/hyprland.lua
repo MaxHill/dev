@@ -16,7 +16,7 @@ hl.monitor({
 ---------------------
 
 -- Set programs that you use
-local terminal    = "ghostty"
+local terminal    = "kitty --title ' '"
 local fileManager = "dolphin"
 local menu        = "rofi -show drun"
 local browser     = "firefox"
@@ -113,8 +113,8 @@ hl.config({
 
         blur             = {
             enabled  = true,
-            size     = 3,
-            passes   = 1,
+            size     = 8,
+            passes   = 3,
             vibrancy = 0.1696,
         },
     },

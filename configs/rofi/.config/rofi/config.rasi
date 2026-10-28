@@ -2,7 +2,7 @@ configuration {
     modi: "drun,run";
     font: "Maple Mono NF 12";
     show-icons: true;
-    terminal: "ghostty";
+    terminal: "kitty --title ' '";
     matching: "fuzzy";
     drun-display-format: "{name}";
     display-drun: "Apps";
