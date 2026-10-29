@@ -2,18 +2,21 @@
  * Reload css with: swaync-client -rs
  * */
 
-/* Keep the packaged layout; override colors, typography, and corners. */
-@define-color cc-bg #16191d;
-@define-color noti-bg #22272e;
-@define-color noti-bg-hover #2d343d;
-@define-color noti-bg-focus #2d343d;
-@define-color text-color #ffffff;
-@define-color text-color-disabled #a5adb8;
-@define-color noti-border-color #49515c;
+@import "../theme/colors.css";
+
+/* Use terminal surfaces, not the transparent Waybar background. */
+@define-color cc-bg @surface_background;
+@define-color noti-bg @surface_background;
+@define-color noti-bg-hover @workspace_selected_background;
+@define-color noti-bg-focus @workspace_selected_background;
+@define-color text-color @surface_foreground;
+@define-color text-color-disabled alpha(@text-color, 0.6);
+@define-color noti-border-color @border_color;
 
 * {
     font-family: "Maple Mono NF";
     font-size: 13px;
+    color: @text-color;
 }
 
 .control-center {
@@ -32,7 +35,7 @@
 }
 
 .notification.critical {
-    border-color: #f7768e;
+    border-color: @foreground-destructive;
 }
 
 .notification-default-action,
@@ -47,6 +50,7 @@ button {
 .notification-action:hover,
 button:hover {
     background: @noti-bg-hover;
+    color: @workspace_selected_foreground;
 }
 
 .summary {
@@ -78,5 +82,5 @@ button:hover {
 }
 
 .widget-dnd > switch:checked {
-    background: #64727d;
+    background: @workspace_selected_background;
 }

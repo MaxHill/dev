@@ -1,17 +1,24 @@
 # tmux-sessionizer
 
-`tmux-sessionizer` finds project directories, lets you select one with fzf, then creates or switches to a tmux session for it. It is installed as `~/.local/bin/tmux-sessionizer` by `./install-scripts.sh` and uses the shared Lua module installed at `~/.local/lib/lua/lib.lua`.
+`tmux-sessionizer` finds project directories, lets you select one with fzf,
+then creates or switches to a tmux session for it. It is installed as
+`~/.local/bin/tmux-sessionizer` by `./install-scripts.sh` and uses the
+shared Lua module installed at `~/.local/lib/lua/lib.lua`.
 
 ## Requirements
 
 - Lua
 - tmux
 - fzf
-- `LUA_PATH` set by the Zsh profile installed from this repo, or otherwise configured to include `~/.local/lib/lua/?.lua`
+- `LUA_PATH` set by the Zsh profile installed from this repo, or otherwise
+  configured to include `~/.local/lib/lua/?.lua`
 
 ## Configuration
 
-The repo provides a Stow-managed config at `${XDG_CONFIG_HOME:-$HOME/.config}/tmux-sessionizer/tmux-sessionizer.lua`. Edit that file or create your own at the same path. It must return a Lua table. All fields are optional:
+The repo provides a Stow-managed config at
+`${XDG_CONFIG_HOME:-$HOME/.config}/tmux-sessionizer/tmux-sessionizer.lua`.
+Edit that file or create your own at the same path. It must return a Lua
+table. All fields are optional:
 
 ```lua
 return {
@@ -37,18 +44,24 @@ return {
 }
 ```
 
-Paths beginning with `~/` expand to the home directory. Search excludes `.git` directories. Without `search_paths`, the defaults are `~/`, `~/personal`, and `~/personal/dev/env/.config`, each at depth 1.
+Paths beginning with `~/` expand to the home directory. Search excludes
+`.git` directories. Without `search_paths`, the defaults are `~/`,
+`~/personal`, and `~/personal/dev/env/.config`, each at depth 1.
 
-The former Bash configuration filename (`tmux-sessionizer.conf`) is no longer loaded; its repo config has been migrated to `tmux-sessionizer.lua`. Current-directory config files are not supported.
+The former Bash configuration filename (`tmux-sessionizer.conf`) is no
+longer loaded; its repo config has been migrated to `tmux-sessionizer.lua`.
+Current-directory config files are not supported.
 
 ## Hydration
 
-Hydration files are separate from application configuration and remain tmux command files:
+Hydration files are separate from application configuration and remain tmux
+command files:
 
 - `~/.tmux-sessionizer` applies to newly created sessions.
 - `<project>/.tmux-sessionizer` takes precedence for that project.
 
-The file is sourced inside the tmux session after it is created. Session-command windows and panes skip hydration.
+The file is sourced inside the tmux session after it is created.
+Session-command windows and panes skip hydration.
 
 ## Usage
 
@@ -67,4 +80,5 @@ tmux-sessionizer -s 0 --vsplit  # Run it in a vertical split
 tmux-sessionizer -s 0 --hsplit  # Run it in a horizontal split
 ```
 
-The split command reuses its pane while that pane is alive. Pane IDs are cached under `${XDG_CACHE_HOME:-$HOME/.cache}/tmux-sessionizer/`.
+The split command reuses its pane while that pane is alive. Pane IDs are
+cached under `${XDG_CACHE_HOME:-$HOME/.cache}/tmux-sessionizer/`.

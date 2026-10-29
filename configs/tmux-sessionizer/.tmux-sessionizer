@@ -4,7 +4,7 @@
 tmux new-window -dn scratch
 
 # Create an opencode window
-tmux new-window -dn opencode opencode
+tmux new-window -dn pi pi
 
 # Start vim in the main window
 nvim .

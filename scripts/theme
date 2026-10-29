@@ -1,0 +1,106 @@
+#!/usr/bin/env lua
+
+-- Desktop shortcuts do not inherit the Lua search path from the shell profile.
+local home = os.getenv("HOME")
+if not home or home == "" then
+    io.stderr:write("theme: HOME is not set\n")
+    os.exit(1)
+end
+package.path = home .. "/.local/lib/lua/?.lua;" .. package.path
+
+local lib = require("lib")
+local quote = lib.shell_quote
+
+local function fail(message)
+    io.stderr:write("theme: " .. message .. "\n")
+    os.exit(1)
+end
+
+if arg[1] == "--help" or arg[1] == "-h" then
+    print("Usage: theme [name]\nWithout a name, select a theme with rofi.")
+    os.exit(0)
+end
+
+if #arg > 1 then
+    fail("Usage: theme [name]")
+end
+
+local themes_dir = home .. "/dev/themes"
+local output = lib.run("find " .. quote(themes_dir) .. " -mindepth 1 -maxdepth 1 -type d -printf '%f\\n'")
+local themes = {}
+local available = {}
+for name in output:gmatch("[^\n]+") do
+    themes[#themes + 1] = name
+    available[name] = true
+end
+table.sort(themes)
+if #themes == 0 then
+    fail("No themes found in " .. themes_dir)
+end
+
+local theme = arg[1]
+if not theme then
+    if not lib.program_exists("rofi") then
+        fail("rofi is not installed")
+    end
+    local command = "printf '%s' " .. quote(table.concat(themes, "\n") .. "\n")
+        .. " | rofi -dmenu -i -no-custom -p Theme"
+    local picker, err = io.popen(command, "r")
+    if not picker then
+        fail("Could not start rofi: " .. tostring(err))
+    end
+    theme = picker:read("*a"):gsub("\n$", "")
+    local ok, _, code = picker:close()
+    if not ok then
+        if code == 1 or code == 130 then
+            os.exit(0)
+        end
+        fail("rofi failed with exit code " .. tostring(code))
+    end
+    if theme == "" then
+        os.exit(0)
+    end
+end
+if not available[theme] then
+    fail("Unknown theme: " .. theme)
+end
+
+local source = themes_dir .. "/" .. theme
+local config_home = os.getenv("XDG_CONFIG_HOME")
+if not config_home or config_home == "" then
+    config_home = home .. "/.config"
+end
+local destination = config_home .. "/theme"
+
+-- Validate before replacing the active theme.
+for _, name in ipairs({ "appearance", "colors.css", "colors.lua", "hyprland-theme.conf", "kitty.conf" }) do
+    if not lib.file_exists(source .. "/" .. name) then
+        fail("Missing theme file: " .. source .. "/" .. name)
+    end
+end
+for _, program in ipairs({ "rsync", "hyprpaper" }) do
+    if not lib.program_exists(program) then
+        fail(program .. " is not installed")
+    end
+end
+
+lib.exec("mkdir -p -- " .. quote(destination))
+-- Theme files can have identical sizes and timestamps but different colors.
+lib.exec("rsync -a --checksum --delete -- " .. quote(source .. "/") .. " " .. quote(destination .. "/"))
+
+-- Keep application reloads separate from theme installation.
+if os.getenv("HYPRLAND_INSTANCE_SIGNATURE") and lib.program_exists("hyprctl") then
+    lib.exec("hyprctl reload")
+end
+lib.exec("pkill -u \"$(id -u)\" -USR2 -x waybar >/dev/null 2>&1 || true")
+-- Skip waiting when SwayNC is not running; re-read imported theme colors.
+if lib.program_exists("swaync-client") then
+    lib.exec("swaync-client -sw -rs")
+end
+-- SIGUSR1 reloads Kitty configuration without remote-control access.
+lib.exec("pkill -u \"$(id -u)\" -USR1 -x kitty >/dev/null 2>&1 || true")
+lib.exec("pkill -x hyprpaper >/dev/null 2>&1 || true")
+lib.exec("hyprpaper >/dev/null 2>&1 </dev/null &")
+
+
+-- Left todo: pi, nvim...

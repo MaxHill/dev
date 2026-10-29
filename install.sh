@@ -19,18 +19,25 @@ cd "$SCRIPT_DIR"
 # ./remove-apps.sh
 
 ./install-hyprland.sh
+./install-screenshot.sh
 
 ./install-stow.sh
+./install-rsync.sh
 ./install-scripts.sh
 ./install-neovim.sh
 ./install-shell.sh
 ./install-fzf.sh
 ./install-configs.sh
+
+# Create the active theme files required by Kitty, Waybar, and Hyprpaper.
+LUA_PATH="$HOME/.local/lib/lua/?.lua;;" "$HOME/.local/bin/theme" dark
+
 ./install-mise.sh
 ./install-delta.sh
 ./install-vale.sh
 ./install-ghostty.sh
 ./install-kitty.sh
+./install-yasi.sh
 ./install-ai.sh
 ./install-wget.sh
 # ./install-hyprland-overrides.sh

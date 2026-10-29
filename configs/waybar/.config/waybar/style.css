@@ -6,7 +6,7 @@
  * Adjust right-side spacing in .modules-right > widget > *.
  */
 
-@import "colors-dark.css";
+@import "/home/max/.config/theme/colors.css";
 
 /* This applies to text throughout the bar. */
 * {
@@ -43,8 +43,10 @@ button:hover {
 /* This applies to each module placed in modules-right in config.jsonc. */
 .modules-right > widget > * {
     min-width: 0;
-    margin: 0;
-    padding: 0 12px;
+    margin: 0 2px;
+    padding: 0 8px;
+    /* border-left: 1px solid orange; */
+    /* background: orange; */
 }
 
 /* This applies to the container holding the workspace buttons. */
@@ -70,8 +72,9 @@ button:hover {
 
 /* This applies to the workspace currently selected on the bar's monitor. */
 #workspaces button.active {
-    background-color: #64727d;
-    box-shadow: inset 0 -3px @foreground;
+    background-color: @workspace_selected_background;
+    color: @workspace_selected_foreground;
+    box-shadow: inset 0 -3px @workspace_selected_foreground;
 }
 
 /* This applies to the clock placed in modules-center in config.jsonc. */
@@ -99,8 +102,9 @@ button:hover {
 /* This applies when the battery reports charging or external power is connected. */
 #battery.charging,
 #battery.plugged {
-    background-color: #26a65b;
-    color: @foreground;
+    background-color: @background-constructive;
+    color: @foreground-constructive;
+    box-shadow: inset 0 -2px @border-constructive;
 }
 
 /* This defines the final frame used by the critical-battery flashing animation. */
@@ -113,8 +117,9 @@ button:hover {
 
 /* This applies below the critical battery threshold in config.jsonc, unless charging. */
 #battery.critical:not(.charging) {
-    background-color: #f53c3c;
-    color: @foreground;
+    background-color: @background-destructive;
+    color: @foreground-destructive;
+    box-shadow: inset 0 -2px @border-destructive;
     animation-name: blink;
     animation-duration: 0.5s;
     animation-timing-function: steps(12);
@@ -136,8 +141,9 @@ button:hover {
 
 /* This applies when the power profile service reports power-saving mode. */
 #power-profiles-daemon.power-saver {
-    background-color: #2ecc71;
-    color: @background;
+    background-color: @background-constructive;
+    color: @foreground-constructive;
+    box-shadow: inset 0 -2px @border-constructive;
 }
 
 /* This applies when a label has keyboard focus, not merely when it is hovered. */
@@ -147,7 +153,9 @@ label:focus {
 
 /* This applies when the network module reports no connection. */
 #network.disconnected {
-    background-color: #f53c3c;
+    background-color: @background-destructive;
+    color: @foreground-destructive;
+    box-shadow: inset 0 -2px @border-destructive;
 }
 
 /* This applies while the pointer is over the volume module. */
@@ -163,8 +171,9 @@ label:focus {
 
 /* This applies to the output of the custom media script configured in config.jsonc. */
 #custom-media {
-    background-color: #66cc99;
-    color: #2a5c45;
+    background-color: @background-constructive;
+    color: @foreground-constructive;
+    box-shadow: inset 0 -2px @border-constructive;
     min-width: 100px;
 }
 
@@ -175,7 +184,9 @@ label:focus {
 
 /* This applies when the temperature reaches the critical threshold in config.jsonc. */
 #temperature.critical {
-    background-color: #eb4d4b;
+    background-color: @background-destructive;
+    color: @foreground-destructive;
+    box-shadow: inset 0 -2px @border-destructive;
 }
 
 /* This applies to the container holding application tray icons. */
@@ -190,8 +201,17 @@ label:focus {
 
 /* This applies when a tray application reports that it needs attention. */
 #tray > .needs-attention {
+    background-color: @background-destructive;
+    color: @foreground-destructive;
+    box-shadow: inset 0 -2px @border-destructive;
     -gtk-icon-effect: highlight;
-    background-color: #eb4d4b;
+}
+
+/* Keep icon placement identical in both idle-inhibitor states. */
+#idle_inhibitor {
+    font-family: "JetBrainsMono Nerd Font Mono";
+    font-size: 23px;
+    min-height: 0;
 }
 
 /* This applies after the idle inhibitor is enabled to prevent idle actions. */
@@ -202,5 +222,5 @@ label:focus {
 
 /* This applies to playback information from the configured Music Player Daemon. */
 #mpd {
-    color: #2a5c45;
+    color: @foreground-constructive;
 }

@@ -1,0 +1,12 @@
+[plugin]
+deps = []
+
+[[flavor.deps]]
+use = "bennyyip/gruvbox-dark"
+rev = "71b03f6"
+hash = "fc8fb278e5e1ede76b7a57c76a6db28b"
+
+[[flavor.deps]]
+use = "Sh00Fly/gruvbox-light"
+rev = "607dad3"
+hash = "8b2a726a1395106f7f1aac1619864bac"

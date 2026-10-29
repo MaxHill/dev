@@ -16,8 +16,9 @@ hl.monitor({
 ---------------------
 
 -- Set programs that you use
-local terminal    = "kitty --title ' '"
-local fileManager = "dolphin"
+-- The terminal shortcut attaches to tmux, creating a session if needed.
+local terminal    = "kitty"
+local fileManager = "kitty -e yazi"
 local menu        = "rofi -show drun"
 local browser     = "firefox"
 
@@ -75,16 +76,22 @@ hl.env("HYPRCURSOR_SIZE", "24")
 -----------------------
 
 -- Refer to https://wiki.hypr.land/Configuring/Basics/Variables/
+local configHome = os.getenv("XDG_CONFIG_HOME")
+if not configHome or configHome == "" then
+    configHome = os.getenv("HOME") .. "/.config"
+end
+local colors = dofile(configHome .. "/theme/colors.lua")
+
 hl.config({
     general = {
-        gaps_in          = 0,
-        gaps_out         = 0,
+        gaps_in          = 10,
+        gaps_out         = 10,
 
         border_size      = 1,
 
         col              = {
-            active_border   = { colors = { "rgba(33ccffee)", "rgba(00ff99ee)" }, angle = 45 },
-            inactive_border = "rgba(595959aa)",
+            active_border   = colors.active_border,
+            inactive_border = colors.inactive_border,
         },
 
         -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
@@ -105,7 +112,7 @@ hl.config({
         inactive_opacity = 1.0,
 
         shadow           = {
-            enabled      = true,
+            enabled      = false,
             range        = 4,
             render_power = 3,
             color        = 0xee1a1a1a,
@@ -257,6 +264,7 @@ local closeWindowBind = hl.bind(mainMod .. " + C", hl.dsp.window.close())
 hl.bind(mainMod .. " + M",
     hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen(0))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 -- hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
 
@@ -310,17 +318,20 @@ hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = tru
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 
 -- Programs
-hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal .. " --title ' ' -e sh -c 'tmux attach-session || exec tmux new-session'"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
+-- Open the theme picker.
+hl.bind(secondMod .. " + T", hl.dsp.exec_cmd(string.format("%q", os.getenv("HOME") .. "/.local/bin/theme")))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
 hl.bind(secondMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 
 -- Screenshots: save to Pictures/Screenshots and copy to the clipboard.
-local screenshot = string.format("%q", os.getenv("HOME") .. "/.local/bin/dev-screenshot")
-hl.bind("SUPER + CTRL + 3", hl.dsp.exec_cmd(screenshot .. " fullscreen"))
-hl.bind("SUPER + CTRL + 4", hl.dsp.exec_cmd(screenshot .. " region"))
+local screenshot = "hyprshot -o " .. string.format("%q", os.getenv("HOME") .. "/Pictures/Screenshots")
+hl.bind("SUPER + CTRL + 2", hl.dsp.exec_cmd(screenshot .. " -m window"))
+hl.bind("SUPER + CTRL + 3", hl.dsp.exec_cmd(screenshot .. " -m output -m active"))
+hl.bind("SUPER + CTRL + 4", hl.dsp.exec_cmd(screenshot .. " -m region"))
 
 --------------------------------
 ---- WINDOWS AND WORKSPACES ----
@@ -353,6 +364,23 @@ hl.window_rule({
     },
 
     no_focus = true,
+})
+
+-- Blur the translucent Waybar surface, not fully transparent pixels around it.
+hl.layer_rule({
+    name = "waybar-blur",
+    match = { namespace = "^waybar$" },
+    blur = true,
+    ignore_alpha = 0.1,
+})
+
+-- SwayNC uses layer surfaces rather than regular windows.
+-- Leave fully transparent areas sharp so only the panel and popups blur.
+hl.layer_rule({
+    name = "swaync-blur",
+    match = { namespace = "^swaync-(control-center|notification-window)$" },
+    blur = true,
+    ignore_alpha = 0.1,
 })
 
 -- Layer rules also return a handle.

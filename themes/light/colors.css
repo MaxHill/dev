@@ -1,0 +1,16 @@
+/* Terminal-matched surfaces at Kitty's 85% opacity. */
+@define-color surface_background rgba(251, 241, 199, 0.85);
+@define-color surface_foreground #3c3836;
+
+@define-color foreground #000000;
+@define-color border_color #000000;
+@define-color background rgba(255, 255, 255, 0.2);
+@define-color workspace_selected_background #d79921;
+@define-color workspace_selected_foreground #000000;
+
+@define-color foreground-constructive #79740e;
+@define-color foreground-destructive #9d0006;
+@define-color background-constructive rgba(121, 116, 14, 0.2);
+@define-color background-destructive rgba(157, 0, 6, 0.2);
+@define-color border-constructive #79740e;
+@define-color border-destructive #9d0006;

@@ -31,5 +31,6 @@ yay -S --needed --noconfirm \
     rofi \
     hypridle \
     hyprpaper \
+    rsync \
     hyprlock
 

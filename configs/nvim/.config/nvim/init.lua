@@ -74,44 +74,6 @@ harpoon:setup({})
 vim.keymap.set("n", "<leader>a", function()
 	harpoon:list():add()
 end, { desc = "Add file to Harpoon" })
-vim.keymap.set("x", "<leader>a", function()
-	local selection = vim.fn.getregion(vim.fn.getpos("v"), vim.fn.getpos("."), { type = vim.fn.mode() })
-	local path =
-		vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p"):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
-	local prompt = table.concat(
-		vim.list_extend({
-			"<source-file>" .. path .. "</source-file>",
-			"<selected-code>",
-		}, vim.list_extend(selection, { "</selected-code>", "", "" })),
-		"\n"
-	)
-	local command = "pi --model claude-sonnet-4.5 --thinking off --no-session --no-extensions --no-skills"
-		.. " --no-context-files --no-prompt-templates --no-themes"
-	local pane = vim.trim(vim.fn.system({
-		"tmux",
-		"split-window",
-		"-h",
-		"-l",
-		"30%",
-		"-d",
-		"-P",
-		"-F",
-		"#{pane_id}",
-		command,
-	}))
-
-	if vim.v.shell_error ~= 0 or pane == "" then
-		vim.notify("Failed to open Pi pane", vim.log.levels.ERROR)
-		return
-	end
-
-	local buffer = "pi-prompt-" .. vim.fn.getpid()
-	vim.fn.system({ "tmux", "set-buffer", "-b", buffer, prompt })
-	vim.defer_fn(function()
-		vim.fn.system({ "tmux", "paste-buffer", "-p", "-b", buffer, "-d", "-t", pane })
-		vim.fn.system({ "tmux", "select-pane", "-t", pane })
-	end, 1000)
-end, { desc = "Ask Pi about selection" })
 vim.keymap.set("n", "<leader>e", function()
 	harpoon.ui:toggle_quick_menu(harpoon:list())
 end)
@@ -560,48 +522,7 @@ end, { silent = true })
 
 -- Colors
 -- -----------------------------
--- Theme: gruvbox-material (dark, hard)
-vim.cmd.packadd("gruvbox-material")
-vim.g.gruvbox_material_background = "hard"
-vim.g.gruvbox_material_foreground = "material"
-vim.g.gruvbox_material_enable_italic = 1
-vim.cmd("colorscheme gruvbox-material")
-
-local function apply_black_background()
-	local black = "#000000"
-	local groups = {
-		"Normal",
-		"NormalNC",
-		"SignColumn",
-		"EndOfBuffer",
-		"LineNr",
-		"CursorLineNr",
-		"NormalFloat",
-		"FloatBorder",
-		"Pmenu",
-		"StatusLine",
-		"StatusLineNC",
-		"TabLine",
-		"TabLineFill",
-	}
-
-	for _, group in ipairs(groups) do
-		vim.api.nvim_set_hl(0, group, { bg = black })
-	end
-
-	vim.api.nvim_set_hl(0, "TabLineSel", { bg = "#d8a657", fg = black, bold = true })
-end
-
-apply_black_background()
-vim.api.nvim_create_autocmd("ColorScheme", {
-	pattern = "gruvbox-material",
-	callback = apply_black_background,
-})
-
--- Light theme alternative (Rose Pine Dawn) - uncomment to use:
--- vim.cmd.packadd("rose-pine")
--- require("rose-pine").setup({ variant = "dawn" })
--- vim.cmd.colorscheme("rose-pine")
+require("user.theme").setup()
 
 -- -----------------------------
 -- Keymaps
