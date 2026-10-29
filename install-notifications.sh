@@ -20,5 +20,3 @@ systemctl --user daemon-reload
 
 systemctl --user enable --now swaync.service
 
-# notify-send is provided by libnotify, installed above.
-notify-send "Notifications ready" "SwayNC is installed and running. Press Super+N to open the notification center."

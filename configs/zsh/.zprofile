@@ -11,6 +11,15 @@ typeset -U path
 path=("$HOME/.local/bin" $path)
 export PATH
 
+# XDG directories
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_MUSIC_DIR="$HOME/music"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+
+export MANPAGER="less -R --use-color -Dd+r -Du+b" # colored man pages
+
 # Public search endpoints for pi-web-tools
 export PI_WEB_TOOLS_EXA_ENDPOINT="https://mcp.exa.ai/mcp"
 export PI_WEB_TOOLS_PARALLEL_ENDPOINT="https://search.parallel.ai/mcp"

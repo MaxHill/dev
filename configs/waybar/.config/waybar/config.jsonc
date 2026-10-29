@@ -155,6 +155,7 @@
       }
     },
     "network": {
+        "on-click": "nm-connection-editor",
         // "interface": "wlp2*", // (Optional) To force the use of this interface
         "format-wifi": "  {essid} ({signalStrength}%)",
         "format-ethernet": "{ipaddr}/{cidr}",

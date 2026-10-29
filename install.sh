@@ -16,8 +16,7 @@ cd "$SCRIPT_DIR"
 ./install-sops.sh
 ./install-ssh.sh --require-agent
 
-# ./remove-apps.sh
-
+./install-yay.sh
 ./install-hyprland.sh
 ./install-screenshot.sh
 
@@ -28,6 +27,7 @@ cd "$SCRIPT_DIR"
 ./install-shell.sh
 ./install-fzf.sh
 ./install-configs.sh
+./install-music.sh
 
 # Create the active theme files required by Kitty, Waybar, and Hyprpaper.
 LUA_PATH="$HOME/.local/lib/lua/?.lua;;" "$HOME/.local/bin/theme" dark
@@ -40,7 +40,6 @@ LUA_PATH="$HOME/.local/lib/lua/?.lua;;" "$HOME/.local/bin/theme" dark
 ./install-yasi.sh
 ./install-ai.sh
 ./install-wget.sh
-# ./install-hyprland-overrides.sh
 ./install-tmux.sh
 ./install-browsers.sh
 ./install-dekit.sh

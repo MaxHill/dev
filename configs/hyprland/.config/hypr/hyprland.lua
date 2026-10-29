@@ -39,6 +39,7 @@ hl.on("hyprland.start", function()
     -- hl.exec_cmd("waybar & hyprpaper & firefox")
     hl.exec_cmd("waybar")
     hl.exec_cmd("hyprpaper")
+    hl.exec_cmd('zsh -lc \'exec mpd --no-daemon "$XDG_CONFIG_HOME/mpd/mpd.conf"\'')
 end)
 
 
@@ -318,7 +319,8 @@ hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = tru
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 
 -- Programs
-hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal .. " --title ' ' -e sh -c 'tmux attach-session || exec tmux new-session'"))
+hl.bind(mainMod .. " + Q",
+    hl.dsp.exec_cmd(terminal .. " --title ' ' -e sh -c 'tmux attach-session || exec tmux new-session'"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
@@ -370,15 +372,6 @@ hl.window_rule({
 hl.layer_rule({
     name = "waybar-blur",
     match = { namespace = "^waybar$" },
-    blur = true,
-    ignore_alpha = 0.1,
-})
-
--- SwayNC uses layer surfaces rather than regular windows.
--- Leave fully transparent areas sharp so only the panel and popups blur.
-hl.layer_rule({
-    name = "swaync-blur",
-    match = { namespace = "^swaync-(control-center|notification-window)$" },
     blur = true,
     ignore_alpha = 0.1,
 })

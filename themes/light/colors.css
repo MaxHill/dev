@@ -1,5 +1,6 @@
 /* Terminal-matched surfaces at Kitty's 85% opacity. */
 @define-color surface_background rgba(251, 241, 199, 0.85);
+@define-color surface_background_opaque #fbf1c7;
 @define-color surface_foreground #3c3836;
 
 @define-color foreground #000000;

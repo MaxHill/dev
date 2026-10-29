@@ -78,7 +78,13 @@ for _, name in ipairs({ "appearance", "colors.css", "colors.lua", "hyprland-them
         fail("Missing theme file: " .. source .. "/" .. name)
     end
 end
-for _, program in ipairs({ "rsync", "hyprpaper" }) do
+local appearance_file = assert(io.open(source .. "/appearance", "r"))
+local appearance = appearance_file:read("*a"):match("^%s*(.-)%s*$")
+appearance_file:close()
+if appearance ~= "light" and appearance ~= "dark" then
+    fail("Invalid appearance in " .. source .. "/appearance: expected light or dark")
+end
+for _, program in ipairs({ "rsync", "hyprpaper", "gsettings" }) do
     if not lib.program_exists(program) then
         fail(program .. " is not installed")
     end
@@ -89,6 +95,11 @@ lib.exec("mkdir -p -- " .. quote(destination))
 lib.exec("rsync -a --checksum --delete -- " .. quote(source .. "/") .. " " .. quote(destination .. "/"))
 
 -- Keep application reloads separate from theme installation.
+-- Libadwaita uses color-scheme; older GTK apps use gtk-theme.
+local color_scheme = appearance == "dark" and "prefer-dark" or "prefer-light"
+local gtk_theme = appearance == "dark" and "Adwaita-dark" or "Adwaita"
+lib.exec("gsettings set org.gnome.desktop.interface color-scheme " .. quote(color_scheme))
+lib.exec("gsettings set org.gnome.desktop.interface gtk-theme " .. quote(gtk_theme))
 if os.getenv("HYPRLAND_INSTANCE_SIGNATURE") and lib.program_exists("hyprctl") then
     lib.exec("hyprctl reload")
 end

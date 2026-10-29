@@ -6,7 +6,7 @@
 
 /* Use terminal surfaces, not the transparent Waybar background. */
 @define-color cc-bg @surface_background;
-@define-color noti-bg @surface_background;
+@define-color noti-bg @surface_background_opaque;
 @define-color noti-bg-hover @workspace_selected_background;
 @define-color noti-bg-focus @workspace_selected_background;
 @define-color text-color @surface_foreground;
@@ -19,7 +19,9 @@
     color: @text-color;
 }
 
+/* GTK 4.24 requests compositor blur through the background-effect protocol. */
 .control-center {
+    backdrop-filter: blur(20px);
     background: @cc-bg;
     color: @text-color;
     border: 1px solid @noti-border-color;
@@ -27,6 +29,7 @@
 }
 
 .notification {
+    backdrop-filter: none;
     background: @noti-bg;
     color: @text-color;
     border: 1px solid @noti-border-color;

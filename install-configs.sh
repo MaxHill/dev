@@ -7,19 +7,6 @@ CONFIGS_DIR="$SCRIPT_DIR/configs"
 
 cd "$CONFIGS_DIR"
 
-# Remove omarchy configs
-
-echo "Removing old config directories"
-rm -rf "$HOME/.config/nvim"
-rm -rf "$HOME/.agents"
-
-PI_CONFIG_SOURCE="$CONFIGS_DIR/pi/.pi"
-if [ -L "$HOME/.pi" ] && [ "$(readlink -f "$HOME/.pi")" = "$(readlink -f "$PI_CONFIG_SOURCE")" ]; then
-    echo "Keeping existing managed ~/.pi symlink"
-else
-    rm -rf "$HOME/.pi"
-fi
-
 echo "Stowing config directories"
 stow -t "$HOME" */
 
