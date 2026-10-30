@@ -9,7 +9,7 @@ if not is_bare then
     os.exit(1)
 end
 
-lib.exec("git fetch --all", true)
+lib.exec("git fetch --all")
 
 local worktrees = {
     { path = "main", description = "main worktree (detached, readonly)" },
@@ -22,7 +22,7 @@ for _, worktree in ipairs(worktrees) do
     if not exists then
         print("Creating " .. worktree.description .. "...")
         lib.exec("git worktree add --detach " .. lib.shell_quote(worktree.path) .. " "
-            .. lib.shell_quote(source_branch), true)
+            .. lib.shell_quote(source_branch))
     end
 end
 

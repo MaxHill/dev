@@ -6,7 +6,7 @@
 ---@class Lib
 ---@field shell_quote fun(value: string): string
 ---@field exec fun(command: string, verbose?: boolean): boolean
----@field run fun(command: string): string
+---@field run fun(command: string, verbose?: boolean): string
 ---@field fzf fun(options?: LibFzfOptions): string|nil, string|nil
 ---@field file_exists fun(path: string): boolean
 ---@field program_exists fun(name: string): boolean
@@ -25,10 +25,10 @@ end
 
 ---Run a shell command; raise an error if it exits unsuccessfully.
 ---@param command string
----@param verbose? boolean Write the command to stderr before running it.
+---@param verbose? boolean Write the command to stderr before running it (default: true).
 ---@return boolean
 function lib.exec(command, verbose)
-    if verbose then
+    if verbose ~= false then
         io.stderr:write("> " .. command .. "\n")
     end
     local ok, kind, code = os.execute(command)
@@ -40,9 +40,12 @@ end
 
 ---Run a shell command, capture stdout, and raise an error on failure.
 ---@param command string
+---@param verbose? boolean Write the command to stderr before running it (default: true).
 ---@return string stdout
-function lib.run(command)
-    io.stderr:write("> " .. command .. "\n")
+function lib.run(command, verbose)
+    if verbose ~= false then
+        io.stderr:write("> " .. command .. "\n")
+    end
 
     local pipe, err = io.popen(command, "r")
     if not pipe then

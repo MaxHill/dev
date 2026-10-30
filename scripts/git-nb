@@ -22,4 +22,4 @@ local command = string.format(
     lib.shell_quote(branch),
     lib.shell_quote(source_branch)
 );
-lib.exec(command, true)
+lib.exec(command)

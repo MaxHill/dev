@@ -9,13 +9,12 @@ Clone a bare Git repository and set up an environment for working from worktrees
 
 Options:
   -h, --help       Show this help and exit
-  -v, --verbose    Print command details
+  -v, --verbose    Accepted for compatibility; commands are always printed
   -l, --location   Bare repository location (default: .bare)
       --no-color   Accepted for compatibility; output is not colorized]])
 end
 
 local location = ".bare"
-local verbose = false
 local args = {}
 local i = 1
 while i <= #arg do
@@ -24,7 +23,7 @@ while i <= #arg do
         usage()
         os.exit(0)
     elseif value == "-v" or value == "--verbose" then
-        verbose = true
+        -- Commands are verbose by default.
     elseif value == "--no-color" then
         -- Output is plain text, so no color setup is needed.
     elseif value == "-l" or value == "--location" then
@@ -55,11 +54,11 @@ for _, value in ipairs(args) do
     clone_args[#clone_args + 1] = lib.shell_quote(value)
 end
 clone_args[#clone_args + 1] = lib.shell_quote(location)
-lib.exec(table.concat(clone_args, " "), verbose)
+lib.exec(table.concat(clone_args, " "))
 
 io.stderr:write("Adjusting origin fetch locations...\n")
 lib.exec("git -C " .. lib.shell_quote(location) .. " config remote.origin.fetch "
-    .. lib.shell_quote("+refs/heads/*:refs/remotes/origin/*"), verbose)
+    .. lib.shell_quote("+refs/heads/*:refs/remotes/origin/*"))
 
 io.stderr:write("Setting .git file contents...\n")
 local gitfile, err = io.open(".git", "w")

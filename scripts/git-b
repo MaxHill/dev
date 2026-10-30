@@ -49,9 +49,9 @@ local selected, query = lib.fzf({
 
 if selected and selected ~= "" then
     if not branches[selected] and selected:match("^origin/") then
-        lib.exec("git switch --track " .. lib.shell_quote(selected), true)
+        lib.exec("git switch --track " .. lib.shell_quote(selected))
     else
-        lib.exec("git switch " .. lib.shell_quote(selected), true)
+        lib.exec("git switch " .. lib.shell_quote(selected))
     end
 elseif query and query ~= "" then
     -- No item matched the query. Create the requested branch from the mainline
@@ -61,7 +61,7 @@ elseif query and query ~= "" then
         os.exit(1)
     end
     local base_branch = lib.git_base_branch()
-    lib.exec("git-nb " .. lib.shell_quote(query) .. " " .. lib.shell_quote(base_branch), true)
+    lib.exec("git-nb " .. lib.shell_quote(query) .. " " .. lib.shell_quote(base_branch))
 else
     -- fzf exits non-zero when cancelled or when there is no selection.
     os.exit(0)

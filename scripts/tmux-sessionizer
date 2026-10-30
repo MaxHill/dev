@@ -169,7 +169,7 @@ local function tmux(args)
 end
 
 local function tmux_exec(args)
-    lib.exec(tmux(args), true)
+    lib.exec(tmux(args))
 end
 
 local function tmux_output(args)
