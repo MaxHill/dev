@@ -20,33 +20,26 @@ cd "$SCRIPT_DIR"
 ./install-hyprland.sh
 ./install-screenshot.sh
 
+ # TODO: I should maybe move install-stow.sh to install-terminal-programs.sh maybe needs to happen before install configs. 
 ./install-stow.sh
-./install-rsync.sh
 ./install-scripts.sh
-./install-neovim.sh
 ./install-shell.sh
-./install-fzf.sh
 ./install-configs.sh
-./install-music.sh
 
 # Create the active theme files required by Kitty, Waybar, and Hyprpaper.
 LUA_PATH="$HOME/.local/lib/lua/?.lua;;" "$HOME/.local/bin/theme" dark
 
-./install-mise.sh
-./install-delta.sh
-./install-vale.sh
 ./install-ghostty.sh
 ./install-kitty.sh
-./install-yasi.sh
-./install-ai.sh
-./install-wget.sh
-./install-tmux.sh
 ./install-browsers.sh
-./install-dekit.sh
-./install-azure-cli.sh
+./install-terminal-programs.sh
 ./install-1password.sh
 ./install-fonts.sh
 ./install-notifications.sh
+./install-music.sh
+./install-gui-programs.sh
+
+./install-wifi.sh
 
 # Skip the systemd-boot menu. Hold Space during boot to show it.
 sudo bootctl set-timeout 0

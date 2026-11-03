@@ -1,9 +1,7 @@
-/* Read on each launch. Edit these colors to change the launcher theme. */
+/* Read the active palette on each launch. */
+@import "~/.config/theme/colors.rasi"
+
 * {
-    background: #1a1a1a;
-    foreground: #ffffff;
-    selected-background: #333333;
-    selected-foreground: #33ccff;
     background-color: @background;
     text-color: @foreground;
     spacing: 8px;
@@ -12,7 +10,7 @@
 window {
     width: 600px;
     border: 1px;
-    border-color: #595959;
+    border-color: @border-color;
     padding: 16px;
 }
 

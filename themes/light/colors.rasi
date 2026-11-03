@@ -1,0 +1,8 @@
+/* Keep these colors in sync with colors.css. */
+* {
+    background: #fbf1c7;
+    foreground: #3c3836;
+    selected-background: #d79921;
+    selected-foreground: #000000;
+    border-color: #000000;
+}

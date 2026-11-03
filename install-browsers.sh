@@ -6,3 +6,4 @@ yay -S --noconfirm --needed zen-browser-bin
 
 yay -S --noconfirm --needed firefox
 yay -S --noconfirm --needed librewolf
+yay -S --noconfirm --needed chromium

@@ -10,5 +10,6 @@
   "packages": [
     "git:github.com/MaxHill/pi-web-tools",
     "npm:@plannotator/pi-extension"
-  ]
+  ],
+  "hideThinkingBlock": false
 }

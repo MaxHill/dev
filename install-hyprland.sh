@@ -13,5 +13,7 @@ yay -S --needed --noconfirm \
     hypridle \
     hyprpaper \
     rsync \
-    hyprlock
+    hyprlock \
+    # xdg-desktop-portal-hyprland-git \ # Commented out since i installed this with archinstall
+    grim slurp # needed for xdg-desktop-portal-hyprland-git
 

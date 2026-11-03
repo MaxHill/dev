@@ -1,7 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 
-set -euo pipefail
+set -e
 
-yay -S --noconfirm --needed mpd rmpc
+yay -S --needed --noconfirm spotify
 
 
+mkdir -p ~/.config
+
+cat > ~/.config/spotify-flags.conf <<EOF
+--enable-features=UseOzonePlatform,WaylandWindowDecorations
+--ozone-platform=wayland
+--enable-wayland-ime
+EOF

@@ -1,7 +1,7 @@
 // -*- mode: jsonc -*-
 
 // Restart on changes:
-// kill-all waybar && waybar
+// pkill waybar && waybar
 // Start:
 // waybar & disown
 {
@@ -14,6 +14,7 @@
     // Choose the order of the modules
     "modules-left": [
         "ext/workspaces",
+        "hyprland/window",
         "custom/media"
     ],
     "modules-center": ["clock"],
@@ -40,6 +41,11 @@
         "format": "{name}",
         "sort-by-name": true,
         "on-click": "activate"
+    },
+    "hyprland/window": {
+        "format": "{class}: {title}",
+        "max-length": 50,
+        "separate-outputs": true
     },
     "hyprland/language": {
         "format": "  {shortDescription}",
@@ -155,7 +161,7 @@
       }
     },
     "network": {
-        "on-click": "nm-connection-editor",
+        "on-click": "kitty -e impala",
         // "interface": "wlp2*", // (Optional) To force the use of this interface
         "format-wifi": "  {essid} ({signalStrength}%)",
         "format-ethernet": "{ipaddr}/{cidr}",

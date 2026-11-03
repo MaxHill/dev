@@ -1,12 +1,10 @@
 #!/usr/bin/env lua
 
--- Desktop shortcuts do not inherit the Lua search path from the shell profile.
 local home = os.getenv("HOME")
 if not home or home == "" then
     io.stderr:write("theme: HOME is not set\n")
     os.exit(1)
 end
-package.path = home .. "/.local/lib/lua/?.lua;" .. package.path
 
 local lib = require("lib")
 local quote = lib.shell_quote
@@ -73,7 +71,7 @@ end
 local destination = config_home .. "/theme"
 
 -- Validate before replacing the active theme.
-for _, name in ipairs({ "appearance", "colors.css", "colors.lua", "hyprland-theme.conf", "kitty.conf" }) do
+for _, name in ipairs({ "appearance", "colors.css", "colors.lua", "colors.rasi", "hyprland-theme.conf", "kitty.conf" }) do
     if not lib.file_exists(source .. "/" .. name) then
         fail("Missing theme file: " .. source .. "/" .. name)
     end

@@ -20,7 +20,7 @@ hl.monitor({
 local terminal    = "kitty"
 local fileManager = "kitty -e yazi"
 local menu        = "rofi -show drun"
-local browser     = "firefox"
+local browser     = "zen-browser"
 
 
 -------------------
@@ -39,7 +39,6 @@ hl.on("hyprland.start", function()
     -- hl.exec_cmd("waybar & hyprpaper & firefox")
     hl.exec_cmd("waybar")
     hl.exec_cmd("hyprpaper")
-    hl.exec_cmd('zsh -lc \'exec mpd --no-daemon "$XDG_CONFIG_HOME/mpd/mpd.conf"\'')
 end)
 
 
@@ -51,6 +50,8 @@ end)
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
+-- Shared modules for Lua scripts; ;; preserves Lua's default module paths.
+hl.env("LUA_PATH", os.getenv("HOME") .. "/.local/lib/lua/?.lua;" .. os.getenv("HOME") .. "/.local/lib/lua/?/init.lua;;")
 
 
 -----------------------
@@ -85,7 +86,7 @@ local colors = dofile(configHome .. "/theme/colors.lua")
 
 hl.config({
     general = {
-        gaps_in          = 10,
+        gaps_in          = 5,
         gaps_out         = 10,
 
         border_size      = 1,
@@ -325,7 +326,7 @@ hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
 -- Open the theme picker.
-hl.bind(secondMod .. " + T", hl.dsp.exec_cmd(string.format("%q", os.getenv("HOME") .. "/.local/bin/theme")))
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(string.format("%q", os.getenv("HOME") .. "/.local/bin/theme")))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t"))
 hl.bind(secondMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 
