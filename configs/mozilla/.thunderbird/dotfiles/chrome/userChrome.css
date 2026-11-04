@@ -1,23 +1,6 @@
 /* Firefox's cream/black palette, adapted to Thunderbird and Betterbird chrome.
  * Do not override message bodies: HTML mail must retain its own contrast. */
-@media (prefers-color-scheme: light) {
-  :root {
-    --dotfiles-bg: #fbf1c7;
-    --dotfiles-fg: #3c3836;
-    --dotfiles-field: #ebdbb2;
-    --dotfiles-hover: #f2e5bc;
-    --dotfiles-border: #d5c4a1;
-  }
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --dotfiles-bg: #000000;
-    --dotfiles-fg: #ffffff;
-    --dotfiles-field: #111111;
-    --dotfiles-hover: #1a1a1a;
-    --dotfiles-border: #222222;
-  }
-}
+@import url("../../../.config/theme/mozilla-colors.css");
 :root {
   --layout-background-0: var(--dotfiles-bg) !important;
   --layout-background-1: var(--dotfiles-bg) !important;

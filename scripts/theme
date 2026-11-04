@@ -100,6 +100,40 @@ for _, name in ipairs({ "gtk-3.0/gtk.css", "gtk-4.0/gtk.css", "palette.css" }) d
     end
 end
 
+-- GTK @define-color is not web CSS. Export the same configured colors for
+-- Firefox and Thunderbird, retaining both media queries for runtime switching.
+local mozilla_colors = { "/* Generated from desktop colors.css files by scripts/theme. */" }
+local mozilla_tokens = {
+    { "bg", "surface_background_opaque" },
+    { "fg", "surface_foreground" },
+    { "field", "surface_field" },
+    { "hover", "surface_hover" },
+    { "border", "surface_border" },
+}
+for _, mode in ipairs({ "light", "dark" }) do
+    -- A custom desktop theme replaces its appearance's palette; the opposite
+    -- appearance uses the corresponding built-in desktop theme.
+    local palette_path = (mode == appearance and source or themes_dir .. "/" .. mode) .. "/colors.css"
+    local palette_file = io.open(palette_path, "r")
+    if not palette_file then
+        fail("Missing Mozilla palette: " .. palette_path)
+    end
+    local colors = {}
+    for key, value in palette_file:read("*a"):gmatch("@define%-color%s+([%w_-]+)%s+([^;]+);") do
+        colors[key] = value:match("^%s*(.-)%s*$")
+    end
+    palette_file:close()
+    mozilla_colors[#mozilla_colors + 1] = "@media (prefers-color-scheme: " .. mode .. ") { :root {"
+    for _, token in ipairs(mozilla_tokens) do
+        local value = colors[token[2]]
+        if not value or not value:match("^#%x%x%x%x%x%x$") then
+            fail("Expected a six-digit hex color for " .. token[2] .. " in " .. palette_path)
+        end
+        mozilla_colors[#mozilla_colors + 1] = "  --dotfiles-" .. token[1] .. ": " .. value .. ";"
+    end
+    mozilla_colors[#mozilla_colors + 1] = "} }"
+end
+
 for _, program in ipairs({ "rsync", "hyprpaper", "gsettings" }) do
     if not lib.program_exists(program) then
         fail(program .. " is not installed")
@@ -109,6 +143,10 @@ end
 lib.exec("mkdir -p -- " .. quote(destination))
 -- Theme files can have identical sizes and timestamps but different colors.
 lib.exec("rsync -a --checksum --delete -- " .. quote(source .. "/") .. " " .. quote(destination .. "/"))
+
+local mozilla_file = assert(io.open(destination .. "/mozilla-colors.css", "w"))
+assert(mozilla_file:write(table.concat(mozilla_colors, "\n") .. "\n"))
+assert(mozilla_file:close())
 
 -- Libadwaita needs user CSS as well as color-scheme. Select the installed palette
 -- without copying it or modifying Stow-managed files.
