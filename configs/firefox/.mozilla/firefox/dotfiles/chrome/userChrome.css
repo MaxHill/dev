@@ -1,0 +1,218 @@
+/* Auto-switching Firefox theme based on system color scheme */
+
+/* ==================== SHARED RESET ==================== */
+#navigator-toolbox,
+#nav-bar,
+#TabsToolbar,
+#PersonalToolbar,
+#titlebar,
+toolbar,
+#status-bar,
+#sidebar-box,
+#sidebar-header,
+#sidebar,
+panel,
+panelview,
+.tooltip {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.tab-background {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* ==================== DARK MODE ==================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --toolbar-bgcolor: #000000 !important;
+    --toolbar-color: #ffffff !important;
+    --toolbar-field-background-color: #111111 !important;
+    --toolbar-field-color: #ffffff !important;
+    --toolbarbutton-hover-background: #1a1a1a !important;
+    --toolbarbutton-active-background: #222222 !important;
+    --toolbar-separator-color: #1a1a1a !important;
+    --tab-background-color: #000000 !important;
+    --tab-background-color-inactive: #000000 !important;
+    --tab-background-color-hover: #0a0a0a !important;
+    --tab-background-color-selected: #111111 !important;
+    --tab-color: #ffffff !important;
+    --tab-selected-color: #ffffff !important;
+    --panel-background: #000000 !important;
+    --panel-color: #ffffff !important;
+    --arrowpanel-background: #000000 !important;
+    --arrowpanel-color: #ffffff !important;
+    --sidebar-background-color: #000000 !important;
+    --sidebar-color: #ffffff !important;
+    --lwt-text-color: #ffffff !important;
+    --lwt-bg-color: #000000 !important;
+    --lwt-toolbar-field-background-color: #111111 !important;
+    --lwt-toolbar-text-color: #ffffff !important;
+    --lwt-toolbar-button-hover: #1a1a1a !important;
+    --lwt-toolbar-button-active: #222222 !important;
+    --tab-line-color: #1a1a1a !important;
+    --tab-selected-bgcolor: #111111 !important;
+    --ntp-background: #000000 !important;
+    --ntp-color: #ffffff !important;
+  }
+
+  #navigator-toolbox { background-color: #000000 !important; border-color: #000000 !important; }
+  #nav-bar { background-color: #000000 !important; border-color: #000000 !important; }
+  #TabsToolbar { background-color: #000000 !important; }
+  #PersonalToolbar { background-color: #000000 !important; border-color: #000000 !important; }
+  toolbar { background-color: #000000 !important; color: #ffffff !important; }
+  toolbarseparator { background-color: #000000 !important; border-color: #1a1a1a !important; }
+  #titlebar { background-color: #000000 !important; }
+
+  #urlbar-background { background-color: #111111 !important; border-color: #111111 !important; }
+  #urlbar[focused="true"] > .urlbar-input-container { background-color: #111111 !important; }
+  #urlbar-input { color: #ffffff !important; }
+
+  .tab-background { background-color: #000000 !important; border-color: #000000 !important; }
+  .tab-background[selected="true"] { background-color: #111111 !important; border-color: #111111 !important; }
+  .tab-background:hover:not([selected="true"]) { background-color: #0a0a0a !important; }
+  .tabbrowser-tab { color: #ffffff !important; }
+  .tab-close-button { color: #ffffff !important; }
+
+  #sidebar-box { background-color: #000000 !important; }
+  #sidebar-header { background-color: #000000 !important; color: #ffffff !important; }
+  #sidebar { background-color: #000000 !important; color: #ffffff !important; }
+  .sidebar-search-container { background-color: #111111 !important; }
+
+  panel { background-color: #000000 !important; color: #ffffff !important; border-color: #1a1a1a !important; }
+  panelview { background-color: #000000 !important; color: #ffffff !important; }
+  .panel-arrowcontent { background-color: #000000 !important; color: #ffffff !important; border-color: #1a1a1a !important; }
+
+  toolbarbutton-menubutton menupopup > menuitem,
+  toolbarbutton-menubutton menupopup > menu { background-color: #000000 !important; color: #ffffff !important; }
+  toolbarbutton-menubutton menupopup > menuitem:hover,
+  toolbarbutton-menubutton menupopup > menu:hover { background-color: #1a1a1a !important; }
+
+  toolbarbutton { color: #ffffff !important; }
+  toolbarbutton:hover { background-color: #1a1a1a !important; }
+
+  #searchbar { background-color: #111111 !important; border-color: #111111 !important; }
+  #status-bar { background-color: #000000 !important; color: #ffffff !important; }
+  #tracking-protection-icon-container { background-color: #000000 !important; }
+  #identity-icon-box { background-color: #000000 !important; }
+  #star-button-box { background-color: #000000 !important; }
+  #reader-mode-button { background-color: #000000 !important; }
+  #firefox-view-button { background-color: #000000 !important; }
+
+  body { background-color: #000000 !important; color: #ffffff !important; }
+  body.newtab-page { background-color: #000000 !important; }
+
+  scrollbar { background-color: #000000 !important; }
+  scrollbar thumb { background-color: #333333 !important; }
+  .tooltip { background-color: #111111 !important; color: #ffffff !important; border-color: #1a1a1a !important; }
+
+  #widget-overflow { background-color: #000000 !important; color: #ffffff !important; }
+  .popup-notification-body { background-color: #000000 !important; color: #ffffff !important; }
+  #BrowserToolbarFindToolbar { background-color: #000000 !important; color: #ffffff !important; }
+
+  .urlbarView { background-color: #000000 !important; }
+  .urlbarView-row { background-color: #000000 !important; color: #ffffff !important; }
+  .urlbarView-row[selected] { background-color: #111111 !important; }
+  .urlbarView-row:hover { background-color: #0a0a0a !important; }
+  .urlbarView-title, .urlbarView-url, .urlbarView-action { color: #ffffff !important; }
+
+  #TabsToolbar > * { background-color: #000000 !important; }
+}
+
+/* ==================== LIGHT MODE ==================== */
+@media (prefers-color-scheme: light) {
+  :root {
+    --toolbar-bgcolor: #fbf1c7 !important;
+    --toolbar-color: #3c3836 !important;
+    --toolbar-field-background-color: #ebdbb2 !important;
+    --toolbar-field-color: #3c3836 !important;
+    --toolbarbutton-hover-background: #ebdbb2 !important;
+    --toolbarbutton-active-background: #d5c4a1 !important;
+    --toolbar-separator-color: #d5c4a1 !important;
+    --tab-background-color: #fbf1c7 !important;
+    --tab-background-color-inactive: #fbf1c7 !important;
+    --tab-background-color-hover: #f2e5bc !important;
+    --tab-background-color-selected: #ebdbb2 !important;
+    --tab-color: #3c3836 !important;
+    --tab-selected-color: #3c3836 !important;
+    --panel-background: #fbf1c7 !important;
+    --panel-color: #3c3836 !important;
+    --arrowpanel-background: #fbf1c7 !important;
+    --arrowpanel-color: #3c3836 !important;
+    --sidebar-background-color: #fbf1c7 !important;
+    --sidebar-color: #3c3836 !important;
+    --lwt-text-color: #3c3836 !important;
+    --lwt-bg-color: #fbf1c7 !important;
+    --lwt-toolbar-field-background-color: #ebdbb2 !important;
+    --lwt-toolbar-text-color: #3c3836 !important;
+    --lwt-toolbar-button-hover: #ebdbb2 !important;
+    --lwt-toolbar-button-active: #d5c4a1 !important;
+    --tab-line-color: #d5c4a1 !important;
+    --tab-selected-bgcolor: #ebdbb2 !important;
+    --ntp-background: #fbf1c7 !important;
+    --ntp-color: #3c3836 !important;
+  }
+
+  #navigator-toolbox { background-color: #fbf1c7 !important; border-color: #d5c4a1 !important; }
+  #nav-bar { background-color: #fbf1c7 !important; border-color: #d5c4a1 !important; }
+  #TabsToolbar { background-color: #fbf1c7 !important; }
+  #PersonalToolbar { background-color: #fbf1c7 !important; border-color: #d5c4a1 !important; }
+  toolbar { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+  toolbarseparator { background-color: #fbf1c7 !important; border-color: #d5c4a1 !important; }
+  #titlebar { background-color: #fbf1c7 !important; }
+
+  #urlbar-background { background-color: #ebdbb2 !important; border-color: #d5c4a1 !important; }
+  #urlbar[focused="true"] > .urlbar-input-container { background-color: #ebdbb2 !important; }
+  #urlbar-input { color: #3c3836 !important; }
+
+  .tab-background { background-color: #fbf1c7 !important; border-color: #d5c4a1 !important; }
+  .tab-background[selected="true"] { background-color: #ebdbb2 !important; border-color: #d5c4a1 !important; }
+  .tab-background:hover:not([selected="true"]) { background-color: #f2e5bc !important; }
+  .tabbrowser-tab { color: #3c3836 !important; }
+  .tab-close-button { color: #3c3836 !important; }
+
+  #sidebar-box { background-color: #fbf1c7 !important; }
+  #sidebar-header { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+  #sidebar { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+  .sidebar-search-container { background-color: #ebdbb2 !important; }
+
+  panel { background-color: #fbf1c7 !important; color: #3c3836 !important; border-color: #d5c4a1 !important; }
+  panelview { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+  .panel-arrowcontent { background-color: #fbf1c7 !important; color: #3c3836 !important; border-color: #d5c4a1 !important; }
+
+  toolbarbutton-menubutton menupopup > menuitem,
+  toolbarbutton-menubutton menupopup > menu { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+  toolbarbutton-menubutton menupopup > menuitem:hover,
+  toolbarbutton-menubutton menupopup > menu:hover { background-color: #ebdbb2 !important; }
+
+  toolbarbutton { color: #3c3836 !important; }
+  toolbarbutton:hover { background-color: #ebdbb2 !important; }
+
+  #searchbar { background-color: #ebdbb2 !important; border-color: #d5c4a1 !important; }
+  #status-bar { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+  #tracking-protection-icon-container { background-color: #fbf1c7 !important; }
+  #identity-icon-box { background-color: #fbf1c7 !important; }
+  #star-button-box { background-color: #fbf1c7 !important; }
+  #reader-mode-button { background-color: #fbf1c7 !important; }
+  #firefox-view-button { background-color: #fbf1c7 !important; }
+
+  body { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+  body.newtab-page { background-color: #fbf1c7 !important; }
+
+  scrollbar { background-color: #fbf1c7 !important; }
+  scrollbar thumb { background-color: #bdae93 !important; }
+  .tooltip { background-color: #fbf1c7 !important; color: #3c3836 !important; border-color: #d5c4a1 !important; }
+
+  #widget-overflow { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+  .popup-notification-body { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+  #BrowserToolbarFindToolbar { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+
+  .urlbarView { background-color: #fbf1c7 !important; }
+  .urlbarView-row { background-color: #fbf1c7 !important; color: #3c3836 !important; }
+  .urlbarView-row[selected] { background-color: #ebdbb2 !important; }
+  .urlbarView-row:hover { background-color: #f2e5bc !important; }
+  .urlbarView-title, .urlbarView-url, .urlbarView-action { color: #3c3836 !important; }
+
+  #TabsToolbar > * { background-color: #fbf1c7 !important; }
+}

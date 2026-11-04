@@ -1,0 +1,56 @@
+/* Firefox's cream/black palette, adapted to Thunderbird and Betterbird chrome.
+ * Do not override message bodies: HTML mail must retain its own contrast. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --dotfiles-bg: #fbf1c7;
+    --dotfiles-fg: #3c3836;
+    --dotfiles-field: #ebdbb2;
+    --dotfiles-hover: #f2e5bc;
+    --dotfiles-border: #d5c4a1;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --dotfiles-bg: #000000;
+    --dotfiles-fg: #ffffff;
+    --dotfiles-field: #111111;
+    --dotfiles-hover: #1a1a1a;
+    --dotfiles-border: #222222;
+  }
+}
+:root {
+  --layout-background-0: var(--dotfiles-bg) !important;
+  --layout-background-1: var(--dotfiles-bg) !important;
+  --layout-background-2: var(--dotfiles-hover) !important;
+  --layout-background-3: var(--dotfiles-field) !important;
+  --layout-background-4: var(--dotfiles-border) !important;
+  --layout-color-0: var(--dotfiles-fg) !important;
+  --layout-color-1: var(--dotfiles-fg) !important;
+  --layout-border-0: var(--dotfiles-border) !important;
+  --layout-border-1: var(--dotfiles-border) !important;
+  --layout-border-2: var(--dotfiles-border) !important;
+  --toolbar-background-color: var(--dotfiles-bg) !important;
+  --toolbar-text-color: var(--dotfiles-fg) !important;
+  --toolbox-background-color: var(--dotfiles-bg) !important;
+  --toolbox-background-color-inactive: var(--dotfiles-bg) !important;
+  --toolbox-text-color: var(--dotfiles-fg) !important;
+  --toolbox-text-color-inactive: var(--dotfiles-fg) !important;
+  --lwt-accent-color: var(--dotfiles-bg) !important;
+  --lwt-text-color: var(--dotfiles-fg) !important;
+  --sidebar-background-color: var(--dotfiles-bg) !important;
+  --sidebar-text-color: var(--dotfiles-fg) !important;
+  --sidebar-border-color: var(--dotfiles-border) !important;
+  --tree-view-bg: var(--dotfiles-bg) !important;
+  --tree-view-color: var(--dotfiles-fg) !important;
+  --toolbar-field-background-color: var(--dotfiles-field) !important;
+  --toolbar-field-color: var(--dotfiles-fg) !important;
+  --lwt-toolbarbutton-hover-background: var(--dotfiles-hover) !important;
+  --lwt-toolbarbutton-active-background: var(--dotfiles-field) !important;
+  --listbox-hover: var(--dotfiles-hover) !important;
+}
+#navigation-toolbox, #unifiedToolbar, #tabs-toolbar,
+#folderPane, #threadPane, #messageHeader, #status-bar {
+  background-color: var(--dotfiles-bg) !important;
+  color: var(--dotfiles-fg) !important;
+  background-image: none !important;
+}

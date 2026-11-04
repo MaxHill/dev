@@ -71,7 +71,7 @@ end
 local destination = config_home .. "/theme"
 
 -- Validate before replacing the active theme.
-for _, name in ipairs({ "appearance", "colors.css", "colors.lua", "colors.rasi", "hyprland-theme.conf", "kitty.conf" }) do
+for _, name in ipairs({ "appearance", "colors.css", "colors.lua", "colors.rasi", "gtk.css", "hyprland-theme.conf", "kitty.conf" }) do
     if not lib.file_exists(source .. "/" .. name) then
         fail("Missing theme file: " .. source .. "/" .. name)
     end
@@ -95,6 +95,7 @@ lib.exec("rsync -a --checksum --delete -- " .. quote(source .. "/") .. " " .. qu
 -- Keep application reloads separate from theme installation.
 -- Libadwaita uses color-scheme; older GTK apps use gtk-theme.
 local color_scheme = appearance == "dark" and "prefer-dark" or "prefer-light"
+-- Use the installed GTK base; gtk.css supplies our Adwaita Black-inspired palette.
 local gtk_theme = appearance == "dark" and "Adwaita-dark" or "Adwaita"
 lib.exec("gsettings set org.gnome.desktop.interface color-scheme " .. quote(color_scheme))
 lib.exec("gsettings set org.gnome.desktop.interface gtk-theme " .. quote(gtk_theme))
