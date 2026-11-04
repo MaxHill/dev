@@ -70,3 +70,14 @@ pavucontrol
 For a libadwaita app, install and launch `gnome-calculator`.
 
 After selecting each theme, reopen Pavucontrol and a libadwaita app to check surfaces, text, selection, and focus visibility.
+
+GTK4's built-in stylesheet uses literal colors for notebook pages, lists, tab indicators, and slider highlights. Defining palette colors alone does not recolor these widgets. Both installed palettes therefore include targeted rules for those surfaces and active accents. Disabled sliders retain native styling.
+
+For a screenshot regression check, capture only Pavucontrol's Playback window with at least one visible slider (use `hyprctl clients -j` for its position and size, then `grim -g 'x,y WIDTHxHEIGHT' /tmp/pavucontrol.png`). Run:
+
+```sh
+bash tests/check-pavucontrol-screenshot.sh dark /tmp/pavucontrol.png
+# Use light after selecting the light theme and reopening Pavucontrol.
+```
+
+This checks the dominant background and presence of the gold accent. It does not replace visual checks of text, focus, disabled controls, or other tabs.
