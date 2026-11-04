@@ -6,8 +6,8 @@
 - `themes/light/gtk-theme` and `themes/dark/gtk-theme` select an installed GTK theme by name. GTK CSS does not live in `themes/`.
 - `scripts/theme` validates the selected GTK theme, syncs the desktop theme into `$XDG_CONFIG_HOME/theme` (default `~/.config/theme`), and sets the desktop GTK theme name and color scheme.
 - GTK3 and ordinary GTK4 apps use the installed named theme. Libadwaita ignores that name, so `configs/gtk/.config/gtk-4.0/gtk.css` imports the active palette through `../theme/gtk.css`. The switcher makes that active path a symlink to the installed theme's `palette.css`; it does not copy GTK CSS or modify Stow-managed files.
-- `configs/mozilla` installs both Firefox and Thunderbird/Betterbird profiles. Their chrome stylesheets import a shared generated `~/.config/theme/mozilla-colors.css` palette.
-- `scripts/theme` translates the GTK `@define-color` values in desktop `colors.css` files into Mozilla CSS variables. Both light/dark media queries are included, so the applications still respond to system appearance changes without profile files being rewritten.
+- `configs/mozilla` installs both Firefox and Thunderbird/Betterbird profiles. Their chrome stylesheets import a shared `~/.config/theme/mozilla-colors.css` palette.
+- Each desktop theme contains a static `mozilla-colors.css`. The existing theme sync copies it alongside the other desktop files. There is no CSS parsing or generation.
 - `install-configs.sh` uses normal Stow behavior for regular config packages. Only the `mozilla` package uses `--no-folding`, so runtime profile data stays outside the repo.
 
 The GTK overrides and Firefox stylesheet are adapted from [Adwaita Black](https://github.com/sijan-dev/adwaita-black). See [its license](adwaita-black-LICENSE). We do not install the upstream theme under its original name or run its installer.
@@ -32,7 +32,7 @@ theme light
 
 The command retains the repo's existing requirement that the checkout lives at `~/dev`. The standard Stow layout targets `~/.config` and `~/.local/share`; custom `XDG_CONFIG_HOME` and `XDG_DATA_HOME` must match your installation paths.
 
-Mozilla uses `surface_background_opaque`, `surface_foreground`, `surface_field`, `surface_hover`, and `surface_border` from `themes/light/colors.css` and `themes/dark/colors.css`. These tokens must be six-digit hex colors. A custom desktop theme replaces the palette for its declared appearance; the opposite appearance falls back to the built-in light or dark palette. Editing palette values requires running `theme` again and restarting Mozilla applications to reload the imported CSS. Normal light/dark switching uses the already-loaded media queries.
+Each `themes/<name>/mozilla-colors.css` defines the Firefox/Thunderbird surface variables. Keep them matched to that theme's `colors.css`. New desktop themes must provide their own static `mozilla-colors.css`. After changing palettes or editing CSS, run `theme` and restart Mozilla applications to reload the imported stylesheet; this setup does not live-reload the custom chrome palette.
 
 The profile imports assume the standard `~/.config/theme` location. A custom config-home location needs matching import paths in both chrome stylesheets.
 
@@ -53,13 +53,13 @@ If an application keeps selecting an old profile, use its profile manager to sel
 
 A new profile does not inherit existing browser data or mail accounts. Keep the old profile until you have migrated the data you need. Do not commit profile data, credentials, or account configuration to the repo.
 
-Select **System theme — auto** in the application's theme settings. Restart once to load `user.js` and custom chrome CSS. The chrome media queries then follow system appearance changes. CSS edits require another restart. Mail styling is limited to application chrome; message bodies retain their own styling.
+Select **System theme — auto** in the application's theme settings. Restart to load `user.js` and custom chrome CSS. After switching desktop themes, restart again to load the selected static palette. Mail styling is limited to application chrome; message bodies retain their own styling.
 
 ## GTK behavior and checks
 
 The GTK overrides replace the old fixed-white styles and invalid `*::headerbar` selector. They preserve native button states, selection, and focus styling rather than forcing every widget's background.
 
-GTK apps can cache their user stylesheet. Reopen them after changing the active palette if they retain old colors. Unlike the Mozilla media queries, live GTK user-CSS reload is not guaranteed. Sandboxed applications may need separate access to the config directories and are not covered by this setup.
+GTK apps can cache their user stylesheet. Reopen them after changing the active palette if they retain old colors. Live GTK user-CSS reload is not guaranteed either. Sandboxed applications may need separate access to the config directories and are not covered by this setup.
 
 Installed GTK test app:
 
