@@ -30,10 +30,28 @@
   --lwt-toolbarbutton-hover-background: var(--dotfiles-hover) !important;
   --lwt-toolbarbutton-active-background: var(--dotfiles-field) !important;
   --listbox-hover: var(--dotfiles-hover) !important;
+  --spaces-button-active-bg-color: var(--dotfiles-accent) !important;
+  --spaces-button-active-text-color: var(--dotfiles-accent-fg) !important;
 }
 #navigation-toolbox, #unifiedToolbar, #tabs-toolbar,
-#folderPane, #threadPane, #messageHeader, #status-bar {
+#spacesToolbar,
+#folderPane, #folderTree, #folderPaneHeaderBar,
+#threadPane, #threadTree, #threadPaneHeader, #quickFilterBar,
+#messageHeader, #status-bar {
   background-color: var(--dotfiles-bg) !important;
   color: var(--dotfiles-fg) !important;
   background-image: none !important;
+}
+
+/* Keep the compose action in the desktop accent palette. */
+#folderPaneWriteMessage {
+  background-color: var(--dotfiles-accent) !important;
+  color: var(--dotfiles-accent-fg) !important;
+  border-color: var(--dotfiles-accent) !important;
+}
+#folderPaneWriteMessage:hover {
+  background-color: color-mix(in srgb, var(--dotfiles-accent), black 10%) !important;
+}
+#folderPaneWriteMessage:active {
+  background-color: color-mix(in srgb, var(--dotfiles-accent), black 20%) !important;
 }

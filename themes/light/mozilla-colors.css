@@ -1,5 +1,7 @@
 /* Shared Firefox/Thunderbird palette, matched to this theme's colors.css. */
 :root {
+  --dotfiles-accent: #d79921;
+  --dotfiles-accent-fg: #000000;
   --dotfiles-bg: #fbf1c7;
   --dotfiles-fg: #3c3836;
   --dotfiles-field: #ebdbb2;

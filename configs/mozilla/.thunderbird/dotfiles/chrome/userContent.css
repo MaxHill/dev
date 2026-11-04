@@ -1,0 +1,40 @@
+/* Shared palette for internal pages only; never restyle message bodies. */
+@import url("../../../.config/theme/mozilla-colors.css");
+
+@-moz-document url("about:addressbook"),
+  url("chrome://messenger/content/addressbook/aboutAddressBook.xhtml") {
+  :root {
+    --layout-background-0: var(--dotfiles-bg) !important;
+    --layout-background-1: var(--dotfiles-bg) !important;
+    --layout-color-0: var(--dotfiles-fg) !important;
+    --sidebar-background: var(--dotfiles-bg) !important;
+    --sidebar-color: var(--dotfiles-fg) !important;
+    --sidebar-border: var(--dotfiles-border) !important;
+    --tree-view-bg: var(--dotfiles-bg) !important;
+    --tree-view-color: var(--dotfiles-fg) !important;
+    --search-bar-background: var(--dotfiles-field) !important;
+    --search-bar-focus-background: var(--dotfiles-field) !important;
+    --search-bar-color: var(--dotfiles-fg) !important;
+    --search-bar-border-color: var(--dotfiles-border) !important;
+    --background-color-box-info: var(--dotfiles-field) !important;
+    --in-content-box-info-border: var(--dotfiles-border) !important;
+  }
+
+  body, #booksPane, #booksPaneHeaderBar, #cardCount,
+  #cardsPane, #cardsPaneHeader, #cards, #detailsPane {
+    background-color: var(--dotfiles-bg) !important;
+    color: var(--dotfiles-fg) !important;
+  }
+
+  #booksPaneCreateContact {
+    background-color: var(--dotfiles-accent) !important;
+    color: var(--dotfiles-accent-fg) !important;
+    border-color: var(--dotfiles-accent) !important;
+  }
+  #booksPaneCreateContact:hover {
+    background-color: color-mix(in srgb, var(--dotfiles-accent), black 10%) !important;
+  }
+  #booksPaneCreateContact:active {
+    background-color: color-mix(in srgb, var(--dotfiles-accent), black 20%) !important;
+  }
+}
