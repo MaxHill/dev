@@ -13,26 +13,26 @@
     "spacing": 4, // Gaps between modules (4px)
     // Choose the order of the modules
     "modules-left": [
-        "ext/workspaces",
-        "hyprland/window",
+     //   "hyprland/window",
         "custom/media"
     ],
     "modules-center": ["clock"],
     "modules-right": [
         "mpd",
-        "idle_inhibitor",
+        // "idle_inhibitor",
         "pulseaudio",
-        "power-profiles-daemon",
-        "cpu",
-        "memory",
-        "temperature",
+        // "power-profiles-daemon",
+        // "cpu",
+        // "memory",
+        // "temperature",
         //"backlight",
         "hyprland/language",
-        "battery",
-        "battery#bat2",
-        "tray",
+        // "battery",
+        // "battery#bat2",
+        // "tray",
+        // "custom/power"
         "network",
-        "custom/power"
+        "ext/workspaces"
     ],
     // Modules configuration
     // Use the Wayland protocol; the Hyprland module sends legacy dispatch commands.
@@ -40,7 +40,8 @@
     "ext/workspaces": {
         "format": "{name}",
         "sort-by-name": true,
-        "on-click": "activate"
+        "on-click": "activate",
+        "active-only": true
     },
     "hyprland/window": {
         "format": "{class}: {title}",
