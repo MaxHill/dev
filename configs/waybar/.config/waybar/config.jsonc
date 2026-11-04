@@ -30,7 +30,7 @@
         "hyprland/language",
         "battery",
         "battery#bat2",
-        // "tray",
+        "tray",
         "network",
         "custom/power"
     ],

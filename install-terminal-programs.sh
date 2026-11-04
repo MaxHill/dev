@@ -7,6 +7,7 @@ yay -S --noconfirm --needed azure-cli
 yay -S --noconfirm --needed wget
 yay -S --noconfirm --needed vale
 yay -S --noconfirm --needed git-delta
+yay -S --noconfirm --needed lazygit
 yay -S --noconfirm --needed bat
 yay -S --noconfirm --needed tldr
 yay -S --noconfirm --needed --ask=4 dekit-bin

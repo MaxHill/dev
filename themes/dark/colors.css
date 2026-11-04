@@ -2,6 +2,9 @@
 @define-color surface_background rgba(0, 0, 0, 0.85);
 @define-color surface_background_opaque #000000;
 @define-color surface_foreground #d4be98;
+@define-color surface_field #111111;
+@define-color surface_hover #1a1a1a;
+@define-color surface_border #222222;
 
 @define-color foreground #d4be98;
 @define-color border_color #d4be98;

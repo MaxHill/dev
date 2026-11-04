@@ -1,0 +1,119 @@
+/* Shared desktop palette; app-specific Firefox styling below. */
+@import url("../../../../.config/theme/mozilla-colors.css");
+
+/* ==================== SHARED RESET ==================== */
+#navigator-toolbox,
+#nav-bar,
+#TabsToolbar,
+#PersonalToolbar,
+#titlebar,
+toolbar,
+#status-bar,
+#sidebar-box,
+#sidebar-header,
+#sidebar,
+panel,
+panelview,
+.tooltip {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.tab-background {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+:root {
+  --toolbar-bgcolor: var(--dotfiles-bg) !important;
+  --toolbar-color: var(--dotfiles-fg) !important;
+  --toolbar-field-background-color: var(--dotfiles-field) !important;
+  --toolbar-field-color: var(--dotfiles-fg) !important;
+  --toolbarbutton-hover-background: var(--dotfiles-field) !important;
+  --toolbarbutton-active-background: var(--dotfiles-border) !important;
+  --toolbar-separator-color: var(--dotfiles-border) !important;
+  --tab-background-color: var(--dotfiles-bg) !important;
+  --tab-background-color-inactive: var(--dotfiles-bg) !important;
+  --tab-background-color-hover: var(--dotfiles-hover) !important;
+  --tab-background-color-selected: var(--dotfiles-field) !important;
+  --tab-color: var(--dotfiles-fg) !important;
+  --tab-selected-color: var(--dotfiles-fg) !important;
+  --panel-background: var(--dotfiles-bg) !important;
+  --panel-color: var(--dotfiles-fg) !important;
+  --arrowpanel-background: var(--dotfiles-bg) !important;
+  --arrowpanel-color: var(--dotfiles-fg) !important;
+  --sidebar-background-color: var(--dotfiles-bg) !important;
+  --sidebar-color: var(--dotfiles-fg) !important;
+  --lwt-text-color: var(--dotfiles-fg) !important;
+  --lwt-bg-color: var(--dotfiles-bg) !important;
+  --lwt-toolbar-field-background-color: var(--dotfiles-field) !important;
+  --lwt-toolbar-text-color: var(--dotfiles-fg) !important;
+  --lwt-toolbar-button-hover: var(--dotfiles-field) !important;
+  --lwt-toolbar-button-active: var(--dotfiles-border) !important;
+  --tab-line-color: var(--dotfiles-border) !important;
+  --tab-selected-bgcolor: var(--dotfiles-field) !important;
+  --ntp-background: var(--dotfiles-bg) !important;
+  --ntp-color: var(--dotfiles-fg) !important;
+}
+
+#navigator-toolbox { background-color: var(--dotfiles-bg) !important; border-color: var(--dotfiles-border) !important; }
+#nav-bar { background-color: var(--dotfiles-bg) !important; border-color: var(--dotfiles-border) !important; }
+#TabsToolbar { background-color: var(--dotfiles-bg) !important; }
+#PersonalToolbar { background-color: var(--dotfiles-bg) !important; border-color: var(--dotfiles-border) !important; }
+toolbar { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+toolbarseparator { background-color: var(--dotfiles-bg) !important; border-color: var(--dotfiles-border) !important; }
+#titlebar { background-color: var(--dotfiles-bg) !important; }
+
+#urlbar-background { background-color: var(--dotfiles-field) !important; border-color: var(--dotfiles-border) !important; }
+#urlbar[focused="true"] > .urlbar-input-container { background-color: var(--dotfiles-field) !important; }
+#urlbar-input { color: var(--dotfiles-fg) !important; }
+
+.tab-background { background-color: var(--dotfiles-bg) !important; border-color: var(--dotfiles-border) !important; }
+.tab-background[selected="true"] { background-color: var(--dotfiles-field) !important; border-color: var(--dotfiles-border) !important; }
+.tab-background:hover:not([selected="true"]) { background-color: var(--dotfiles-hover) !important; }
+.tabbrowser-tab { color: var(--dotfiles-fg) !important; }
+.tab-close-button { color: var(--dotfiles-fg) !important; }
+
+#sidebar-box { background-color: var(--dotfiles-bg) !important; }
+#sidebar-header { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+#sidebar { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+.sidebar-search-container { background-color: var(--dotfiles-field) !important; }
+
+panel { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; border-color: var(--dotfiles-border) !important; }
+panelview { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+.panel-arrowcontent { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; border-color: var(--dotfiles-border) !important; }
+
+toolbarbutton-menubutton menupopup > menuitem,
+toolbarbutton-menubutton menupopup > menu { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+toolbarbutton-menubutton menupopup > menuitem:hover,
+toolbarbutton-menubutton menupopup > menu:hover { background-color: var(--dotfiles-field) !important; }
+
+toolbarbutton { color: var(--dotfiles-fg) !important; }
+toolbarbutton:hover { background-color: var(--dotfiles-field) !important; }
+
+#searchbar { background-color: var(--dotfiles-field) !important; border-color: var(--dotfiles-border) !important; }
+#status-bar { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+#tracking-protection-icon-container { background-color: var(--dotfiles-bg) !important; }
+#identity-icon-box { background-color: var(--dotfiles-bg) !important; }
+#star-button-box { background-color: var(--dotfiles-bg) !important; }
+#reader-mode-button { background-color: var(--dotfiles-bg) !important; }
+#firefox-view-button { background-color: var(--dotfiles-bg) !important; }
+
+body { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+body.newtab-page { background-color: var(--dotfiles-bg) !important; }
+
+scrollbar { background-color: var(--dotfiles-bg) !important; }
+scrollbar thumb { background-color: var(--dotfiles-border) !important; }
+.tooltip { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; border-color: var(--dotfiles-border) !important; }
+
+#widget-overflow { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+.popup-notification-body { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+#BrowserToolbarFindToolbar { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+
+.urlbarView { background-color: var(--dotfiles-bg) !important; }
+.urlbarView-row { background-color: var(--dotfiles-bg) !important; color: var(--dotfiles-fg) !important; }
+.urlbarView-row[selected] { background-color: var(--dotfiles-field) !important; }
+.urlbarView-row:hover { background-color: var(--dotfiles-hover) !important; }
+.urlbarView-title, .urlbarView-url, .urlbarView-action { color: var(--dotfiles-fg) !important; }
+
+#TabsToolbar > * { background-color: var(--dotfiles-bg) !important; }

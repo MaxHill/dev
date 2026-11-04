@@ -8,7 +8,17 @@ CONFIGS_DIR="$SCRIPT_DIR/configs"
 cd "$CONFIGS_DIR"
 
 echo "Stowing config directories"
-stow -t "$HOME" */
+packages=()
+for package in */; do
+    if [[ "$package" != "mozilla/" ]]; then
+        packages+=("$package")
+    fi
+done
+stow -t "$HOME" "${packages[@]}"
+
+# Mozilla apps must write runtime profile data into real directories, not the repo.
+# Betterbird uses Thunderbird's profile directory.
+stow --no-folding -t "$HOME" mozilla
 
 # Initialize neovim to install plugins (now that config is linked)
 echo "Installing Neovim plugins..."

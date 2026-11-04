@@ -71,7 +71,7 @@ end
 local destination = config_home .. "/theme"
 
 -- Validate before replacing the active theme.
-for _, name in ipairs({ "appearance", "colors.css", "colors.lua", "colors.rasi", "hyprland-theme.conf", "kitty.conf" }) do
+for _, name in ipairs({ "appearance", "colors.css", "colors.lua", "colors.rasi", "mozilla-colors.css", "gtk-theme", "hyprland-theme.conf", "kitty.conf" }) do
     if not lib.file_exists(source .. "/" .. name) then
         fail("Missing theme file: " .. source .. "/" .. name)
     end
@@ -82,6 +82,24 @@ appearance_file:close()
 if appearance ~= "light" and appearance ~= "dark" then
     fail("Invalid appearance in " .. source .. "/appearance: expected light or dark")
 end
+-- Desktop themes select GTK themes installed by Stow; they do not carry GTK CSS.
+local gtk_theme_file = assert(io.open(source .. "/gtk-theme", "r"))
+local gtk_theme = gtk_theme_file:read("*a"):match("^%s*(.-)%s*$")
+gtk_theme_file:close()
+if not gtk_theme:match("^[%w_-]+$") then
+    fail("Invalid GTK theme name in " .. source .. "/gtk-theme")
+end
+local data_home = os.getenv("XDG_DATA_HOME")
+if not data_home or data_home == "" then
+    data_home = home .. "/.local/share"
+end
+local gtk_source = data_home .. "/themes/" .. gtk_theme
+for _, name in ipairs({ "gtk-3.0/gtk.css", "gtk-4.0/gtk.css", "palette.css" }) do
+    if not lib.file_exists(gtk_source .. "/" .. name) then
+        fail("Missing installed GTK theme file: " .. gtk_source .. "/" .. name .. "; stow configs/gtk first")
+    end
+end
+
 for _, program in ipairs({ "rsync", "hyprpaper", "gsettings" }) do
     if not lib.program_exists(program) then
         fail(program .. " is not installed")
@@ -92,10 +110,13 @@ lib.exec("mkdir -p -- " .. quote(destination))
 -- Theme files can have identical sizes and timestamps but different colors.
 lib.exec("rsync -a --checksum --delete -- " .. quote(source .. "/") .. " " .. quote(destination .. "/"))
 
+-- Libadwaita needs user CSS as well as color-scheme. Select the installed palette
+-- without copying it or modifying Stow-managed files.
+lib.exec("ln -sfn -- " .. quote(gtk_source .. "/palette.css") .. " " .. quote(destination .. "/gtk.css"))
+
 -- Keep application reloads separate from theme installation.
 -- Libadwaita uses color-scheme; older GTK apps use gtk-theme.
 local color_scheme = appearance == "dark" and "prefer-dark" or "prefer-light"
-local gtk_theme = appearance == "dark" and "Adwaita-dark" or "Adwaita"
 lib.exec("gsettings set org.gnome.desktop.interface color-scheme " .. quote(color_scheme))
 lib.exec("gsettings set org.gnome.desktop.interface gtk-theme " .. quote(gtk_theme))
 if os.getenv("HYPRLAND_INSTANCE_SIGNATURE") and lib.program_exists("hyprctl") then
