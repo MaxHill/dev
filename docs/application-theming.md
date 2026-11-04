@@ -2,9 +2,10 @@
 
 ## Ownership
 
-- `themes/light` and `themes/dark` contain the active GTK palette and other desktop theme files.
-- `scripts/theme` validates the selected theme, syncs it into `$XDG_CONFIG_HOME/theme` (default `~/.config/theme`), and updates the desktop appearance settings.
-- `configs/gtk` installs GTK3 and GTK4 entry points. Both import `../theme/gtk.css`. The built-in Adwaita theme supplies widget behavior; our overrides supply cream light surfaces and black dark surfaces.
+- `configs/gtk/.local/share/themes` contains the complete GTK themes. Stow installs them as `~/.local/share/themes/adwaita-black-light` and `adwaita-black-dark`. Each contains GTK3/GTK4 stylesheets, a shared palette, and theme metadata.
+- `themes/light/gtk-theme` and `themes/dark/gtk-theme` select an installed GTK theme by name. GTK CSS does not live in `themes/`.
+- `scripts/theme` validates the selected GTK theme, syncs the desktop theme into `$XDG_CONFIG_HOME/theme` (default `~/.config/theme`), and sets the desktop GTK theme name and color scheme.
+- GTK3 and ordinary GTK4 apps use the installed named theme. Libadwaita ignores that name, so `configs/gtk/.config/gtk-4.0/gtk.css` imports the active palette through `../theme/gtk.css`. The switcher makes that active path a symlink to the installed theme's `palette.css`; it does not copy GTK CSS or modify Stow-managed files.
 - Firefox and Thunderbird have separate chrome stylesheets with light/dark media queries. They follow the system appearance rather than having files rewritten by `theme`.
 - `install-configs.sh` uses normal Stow behavior for regular config packages. Only Firefox and Thunderbird use `--no-folding`, so runtime profile data stays outside the repo.
 
@@ -21,14 +22,16 @@ stow --dir=configs --target="$HOME" --no-folding firefox thunderbird
 
 Stow does not overwrite existing unmanaged files. If it reports conflicts, back up and move aside only the conflicting files before retrying. Do not delete existing profiles or mail data. Older copies of `gtk-light.css` and `gtk-dark.css` are no longer used.
 
-Initialize the active GTK palette after installing the configs:
+Select an installed GTK theme after stowing the configs:
 
 ```sh
 theme light
 # Or: theme dark
 ```
 
-The command retains the repo's existing requirement that the checkout lives at `~/dev`. Custom `XDG_CONFIG_HOME` must match the directory where you install the GTK config; the standard Stow package layout targets `~/.config`.
+The command retains the repo's existing requirement that the checkout lives at `~/dev`. The standard Stow layout targets `~/.config` and `~/.local/share`; custom `XDG_CONFIG_HOME` and `XDG_DATA_HOME` must match your installation paths.
+
+To add a theme, create another named theme under `configs/gtk/.local/share/themes/`, with `gtk-3.0/gtk.css`, `gtk-4.0/gtk.css`, and `palette.css`. Stow it, then set the relevant desktop theme's `gtk-theme` file to that name. Its `appearance` file independently controls the system light/dark preference.
 
 ## Firefox and Thunderbird profiles
 
@@ -59,10 +62,4 @@ pavucontrol
 
 For a libadwaita app, install and launch `gnome-calculator`.
 
-Run the automated checks from a graphical session:
-
-```sh
-bash tests/theming.sh
-```
-
-The checks require Stow, rsync, Lua, a C compiler, pkg-config, and GTK3/GTK4/libadwaita development headers. They verify real toolkit palette loading for both appearances, reject GTK theme-parser warnings, and verify that Mozilla profile directories do not fold into the repo. They do not prove every widget or application looks correct.
+After selecting each theme, reopen Pavucontrol and a libadwaita app to check surfaces, text, selection, and focus visibility.

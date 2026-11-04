@@ -1,2 +1,2 @@
-/* scripts/theme installs the selected palette here. */
+/* Libadwaita ignores gtk-theme. scripts/theme links the selected installed palette here. */
 @import url("../theme/gtk.css");

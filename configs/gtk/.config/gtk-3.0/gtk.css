@@ -1,2 +1,1 @@
-/* scripts/theme installs the selected palette here. */
-@import url("../theme/gtk.css");
+/* GTK3 uses the installed theme selected by scripts/theme. */
