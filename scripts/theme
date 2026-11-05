@@ -1,136 +1,162 @@
 #!/usr/bin/env lua
 
-local home = os.getenv("HOME")
-if not home or home == "" then
-    io.stderr:write("theme: HOME is not set\n")
-    os.exit(1)
-end
-
 local lib = require("lib")
 local quote = lib.shell_quote
-
 local function fail(message)
-    io.stderr:write("theme: " .. message .. "\n")
-    os.exit(1)
+	io.stderr:write("theme: " .. message .. "\n")
+	os.exit(1)
 end
 
+local config = {
+	home = os.getenv("HOME"),
+	config_home = os.getenv("XDG_CONFIG_HOME"),
+	data_home = os.getenv("XDG_DATA_HOME"),
+	themes_dir = nil,
+	gtk_source = nil,
+	theme_list = {},
+	selected_theme = arg[1],
+	appearance = "",
+}
+
+--  ------------------------------------------------------------------
+--  Args parsing
+--  ------------------------------------------------------------------
+if not config.home or config.home == "" then
+	io.stderr:write("theme: HOME is not set\n")
+	os.exit(1)
+end
+config.themes_dir = config.home .. "/dev/themes"
+
 if arg[1] == "--help" or arg[1] == "-h" then
-    print("Usage: theme [name]\nWithout a name, select a theme with rofi.")
-    os.exit(0)
+	print("Usage: theme [name]\nWithout a name, select a theme with rofi.")
+	os.exit(0)
 end
 
 if #arg > 1 then
-    fail("Usage: theme [name]")
+	fail("Usage: theme [name]")
 end
 
-local themes_dir = home .. "/dev/themes"
-local output = lib.run("find " .. quote(themes_dir) .. " -mindepth 1 -maxdepth 1 -type d -printf '%f\\n'")
-local themes = {}
+if not config.config_home or config.config_home == "" then
+	fail("XDG_CONFIG_HOME environment variable is not set")
+end
+if not config.data_home or config.data_home == "" then
+	fail("XDG_DATA_HOME environment variable is not set")
+end
+
+--  Populate theme list
+--  ------------------------------------------------------------------------
+local output = lib.run("find " .. quote(config.themes_dir) .. " -mindepth 1 -maxdepth 1 -type d -printf '%f\\n'")
 local available = {}
 for name in output:gmatch("[^\n]+") do
-    themes[#themes + 1] = name
-    available[name] = true
+	config.theme_list[#config.theme_list + 1] = name
+	available[name] = true
 end
-table.sort(themes)
-if #themes == 0 then
-    fail("No themes found in " .. themes_dir)
-end
-
-local theme = arg[1]
-if not theme then
-    if not lib.program_exists("rofi") then
-        fail("rofi is not installed")
-    end
-    local command = "printf '%s' " .. quote(table.concat(themes, "\n") .. "\n")
-        .. " | rofi -dmenu -i -no-custom -p Theme"
-    local picker, err = io.popen(command, "r")
-    if not picker then
-        fail("Could not start rofi: " .. tostring(err))
-    end
-    theme = picker:read("*a"):gsub("\n$", "")
-    local ok, _, code = picker:close()
-    if not ok then
-        if code == 1 or code == 130 then
-            os.exit(0)
-        end
-        fail("rofi failed with exit code " .. tostring(code))
-    end
-    if theme == "" then
-        os.exit(0)
-    end
-end
-if not available[theme] then
-    fail("Unknown theme: " .. theme)
+table.sort(config.theme_list)
+if #config.theme_list == 0 then
+	fail("No themes found in " .. config.themes_dir)
 end
 
-local source = themes_dir .. "/" .. theme
-local config_home = os.getenv("XDG_CONFIG_HOME")
-if not config_home or config_home == "" then
-    config_home = home .. "/.config"
+--  Select theme with rofi
+--  ------------------------------------------------------------------------
+if not config.selected_theme then
+	if not lib.program_exists("rofi") then
+		fail("rofi is not installed")
+	end
+	local command = "printf '%s' "
+		.. quote(table.concat(config.theme_list, "\n") .. "\n")
+		.. " | rofi -dmenu -i -no-custom -p Theme"
+	local picker, err = io.popen(command, "r")
+	if not picker then
+		fail("Could not start rofi: " .. tostring(err))
+	end
+	config.selected_theme = picker:read("*a"):gsub("\n$", "")
+	local ok, _, code = picker:close()
+	if not ok then
+		if code == 1 or code == 130 then
+			os.exit(0)
+		end
+		fail("rofi failed with exit code " .. tostring(code))
+	end
+	if config.selected_theme == "" then
+		os.exit(0)
+	end
 end
-local destination = config_home .. "/theme"
+if not available[config.selected_theme] then
+	fail("Unknown theme: " .. config.selected_theme)
+end
+
+local source = config.themes_dir .. "/" .. config.selected_theme
+local destination = config.config_home .. "/theme"
 
 -- Validate before replacing the active theme.
-for _, name in ipairs({ "appearance", "colors.css", "colors.lua", "colors.rasi", "mozilla-colors.css", "gtk-theme", "hyprland-theme.conf", "kitty.conf" }) do
-    if not lib.file_exists(source .. "/" .. name) then
-        fail("Missing theme file: " .. source .. "/" .. name)
-    end
+for _, name in ipairs({
+	"appearance",
+	"colors.css",
+	"colors.lua",
+	"colors.rasi",
+	"mozilla-colors.css",
+	"gtk-theme",
+	"hyprland-theme.conf",
+	"kitty.conf",
+}) do
+	if not lib.file_exists(source .. "/" .. name) then
+		fail("Missing theme file: " .. source .. "/" .. name)
+	end
 end
+
 local appearance_file = assert(io.open(source .. "/appearance", "r"))
-local appearance = appearance_file:read("*a"):match("^%s*(.-)%s*$")
+config.appearance = appearance_file:read("*a"):match("^%s*(.-)%s*$")
 appearance_file:close()
-if appearance ~= "light" and appearance ~= "dark" then
-    fail("Invalid appearance in " .. source .. "/appearance: expected light or dark")
+if config.appearance ~= "light" and config.appearance ~= "dark" then
+	fail("Invalid appearance in " .. source .. "/appearance: expected light or dark")
 end
+
 -- Desktop themes select GTK themes installed by Stow; they do not carry GTK CSS.
 local gtk_theme_file = assert(io.open(source .. "/gtk-theme", "r"))
 local gtk_theme = gtk_theme_file:read("*a"):match("^%s*(.-)%s*$")
 gtk_theme_file:close()
 if not gtk_theme:match("^[%w_-]+$") then
-    fail("Invalid GTK theme name in " .. source .. "/gtk-theme")
+	fail("Invalid GTK theme name in " .. source .. "/gtk-theme")
 end
-local data_home = os.getenv("XDG_DATA_HOME")
-if not data_home or data_home == "" then
-    data_home = home .. "/.local/share"
-end
-local gtk_source = data_home .. "/themes/" .. gtk_theme
+
+config.gtk_source = config.data_home .. "/themes/" .. gtk_theme
 for _, name in ipairs({ "gtk-3.0/gtk.css", "gtk-4.0/gtk.css", "palette.css" }) do
-    if not lib.file_exists(gtk_source .. "/" .. name) then
-        fail("Missing installed GTK theme file: " .. gtk_source .. "/" .. name .. "; stow configs/gtk first")
-    end
+	if not lib.file_exists(config.gtk_source .. "/" .. name) then
+		fail("Missing installed GTK theme file: " .. config.gtk_source .. "/" .. name .. "; stow configs/gtk first")
+	end
 end
 
 for _, program in ipairs({ "rsync", "hyprpaper", "gsettings" }) do
-    if not lib.program_exists(program) then
-        fail(program .. " is not installed")
-    end
+	if not lib.program_exists(program) then
+		fail(program .. " is not installed")
+	end
 end
 
+--  ------------------------------------------------------------------
+--  Perform theme switch
+--  ------------------------------------------------------------------
 lib.exec("mkdir -p -- " .. quote(destination))
 -- Theme files can have identical sizes and timestamps but different colors.
 lib.exec("rsync -a --checksum --delete -- " .. quote(source .. "/") .. " " .. quote(destination .. "/"))
 
 -- Libadwaita needs user CSS as well as color-scheme. Select the installed palette
 -- without copying it or modifying Stow-managed files.
-lib.exec("ln -sfn -- " .. quote(gtk_source .. "/palette.css") .. " " .. quote(destination .. "/gtk.css"))
+lib.exec("ln -sfn -- " .. quote(config.gtk_source .. "/palette.css") .. " " .. quote(destination .. "/gtk.css"))
 
 -- Keep application reloads separate from theme installation.
 -- Libadwaita uses color-scheme; older GTK apps use gtk-theme.
-local color_scheme = appearance == "dark" and "prefer-dark" or "prefer-light"
+local color_scheme = config.appearance == "dark" and "prefer-dark" or "prefer-light"
 lib.exec("gsettings set org.gnome.desktop.interface color-scheme " .. quote(color_scheme))
 lib.exec("gsettings set org.gnome.desktop.interface gtk-theme " .. quote(gtk_theme))
 if os.getenv("HYPRLAND_INSTANCE_SIGNATURE") and lib.program_exists("hyprctl") then
-    lib.exec("hyprctl reload")
+	lib.exec("hyprctl reload")
 end
-lib.exec("pkill -u \"$(id -u)\" -USR2 -x waybar >/dev/null 2>&1 || true")
+lib.exec('pkill -u "$(id -u)" -USR2 -x waybar >/dev/null 2>&1 || true')
 -- Skip waiting when SwayNC is not running; re-read imported theme colors.
 if lib.program_exists("swaync-client") then
-    lib.exec("swaync-client -sw -rs")
+	lib.exec("swaync-client -sw -rs")
 end
 -- SIGUSR1 reloads Kitty configuration without remote-control access.
-lib.exec("pkill -u \"$(id -u)\" -USR1 -x kitty >/dev/null 2>&1 || true")
+lib.exec('pkill -u "$(id -u)" -USR1 -x kitty >/dev/null 2>&1 || true')
 lib.exec("pkill -x hyprpaper >/dev/null 2>&1 || true")
 lib.exec("hyprpaper >/dev/null 2>&1 </dev/null &")
-
-
--- Left todo: pi, nvim...
