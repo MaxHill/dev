@@ -1,8 +1,7 @@
 return {
     search_paths = {
-        "~/code/work",
-        "~/code/personal",
-        { path = "~/dev", depth = 0 },
+        "~/code",
+        { path = "~/dev",           depth = 0 },
         { path = "~/Dropbox/Notes", depth = 0 },
     },
 
