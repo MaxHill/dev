@@ -3,7 +3,7 @@
 // Restart on changes:
 // pkill waybar && waybar
 // Start:
-// waybar & disown
+// pkill waybar && waybar 2>&1 >/dev/null & disown
 {
     "reload_style_on_change": true,
     // "layer": "top", // Waybar at top layer
@@ -14,9 +14,12 @@
     // Choose the order of the modules
     "modules-left": [
      //   "hyprland/window",
+        "ext/workspaces",
         "custom/media"
     ],
-    "modules-center": ["clock"],
+    "modules-center": [
+        "clock"
+    ],
     "modules-right": [
         "mpd",
         // "idle_inhibitor",
@@ -32,16 +35,15 @@
         // "tray",
         // "custom/power"
         "network",
-        "ext/workspaces"
     ],
     // Modules configuration
     // Use the Wayland protocol; the Hyprland module sends legacy dispatch commands.
-    // Workspaces 1–10 are kept persistent by hyprland.lua.
+    // Workspaces 1–5 are kept persistent by hyprland.lua.
     "ext/workspaces": {
         "format": "{name}",
         "sort-by-name": true,
         "on-click": "activate",
-        "active-only": true
+        //"active-only": true
     },
     "hyprland/window": {
         "format": "{class}: {title}",
@@ -172,7 +174,8 @@
     },
     "pulseaudio": {
         // "scroll-step": 1, // %, can be a float
-        "format": "{icon} {volume}% {format_source}",
+        //"format": "{icon} {volume}% {format_source}",
+        "format": "{icon} {volume}%",
         "format-bluetooth": "{icon} {volume}% {format_source}",
         "format-bluetooth-muted": "󰅶 {icon} {format_source}",
         "format-muted": "󰅶 {format_source}",

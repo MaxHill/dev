@@ -63,18 +63,20 @@ button:hover {
     padding: 0 4px;
     background-color: transparent;
     color: @foreground;
+    opacity: 0.4;
 }
 
 /* This applies while the pointer is over a workspace button. */
 #workspaces button:hover {
-    background: rgba(0, 0, 0, 0.2);
+    opacity: 1;
+    /* background: rgba(0, 0, 0, 0.2); */
+    box-shadow: inset 0 -3px transparent;
 }
 
 /* This applies to the workspace currently selected on the bar's monitor. */
 #workspaces button.active {
-    background-color: @workspace_selected_background;
+    opacity: 1;
     color: @workspace_selected_foreground;
-    box-shadow: inset 0 -3px @workspace_selected_foreground;
 }
 
 /* This applies to the clock placed in modules-center in config.jsonc. */

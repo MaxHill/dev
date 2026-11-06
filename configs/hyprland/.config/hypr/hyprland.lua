@@ -162,7 +162,7 @@ hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, bezier = "a
 hl.animation({ leaf = "zoomFactor", enabled = true, speed = 7, bezier = "quick" })
 
 -- Keep all ten workspace buttons available through the Wayland workspace protocol.
-for i = 1, 10 do
+for i = 1, 5 do
     hl.workspace_rule({ workspace = tostring(i), persistent = true })
 end
 

@@ -55,6 +55,14 @@ A new profile does not inherit existing browser data or mail accounts. Keep the 
 
 Select **System theme — auto** in the application's theme settings. Restart to load `user.js` and custom chrome CSS. After switching desktop themes, restart again to load the selected static palette. Mail styling is limited to application chrome; message bodies retain their own styling.
 
+## Chromium
+
+Chromium uses the installed GTK theme. In Appearance settings, select **Use GTK** and keep Mode set to **Device**. `scripts/theme` already sets the desktop GTK theme and color scheme, so no browser color policies or per-theme Chromium files are needed. Reopen Chromium if it retains old colors after a theme switch.
+
+`install-browsers.sh` removes the policy symlink from our earlier seed-color setup if it still points to this user's generated file. It leaves unrelated policies untouched. The GTK setup does not add color policies.
+
+The browser installer also adds `--extensions-on-chrome-urls` to `~/.config/chromium-flags.conf` without removing other flags. It installs `dotfiles-command-line-warnings.json` with `CommandLineFlagSecurityWarningsEnabled: false`. This deliberately suppresses warnings for **all** potentially dangerous command-line flags and brings back Chromium's generic “managed by your organization” notice. It does not remove the security risks of those flags. Fully quit and restart Chromium after installation; this policy does not support live refresh.
+
 ## GTK behavior and checks
 
 The GTK overrides replace the old fixed-white styles and invalid `*::headerbar` selector. They preserve native button states, selection, and focus styling rather than forcing every widget's background.
