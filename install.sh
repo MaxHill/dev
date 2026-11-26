@@ -33,6 +33,7 @@ LUA_PATH="$HOME/.local/lib/lua/?.lua;;" "$HOME/.local/bin/theme" dark
 ./install-kitty.sh
 ./install-browsers.sh
 ./install-terminal-programs.sh
+./install-docker.sh
 ./install-1password.sh
 ./install-fonts.sh
 ./install-notifications.sh

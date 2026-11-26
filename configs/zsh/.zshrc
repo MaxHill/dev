@@ -52,3 +52,6 @@ source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 
 # opencode
 export PATH=/home/max/.opencode/bin:$PATH
+
+# Ocaml opam
+[[ ! -r '/home/max/.opam/opam-init/init.zsh' ]] || source '/home/max/.opam/opam-init/init.zsh' > /dev/null 2> /dev/null

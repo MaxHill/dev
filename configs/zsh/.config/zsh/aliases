@@ -1,1 +1,2 @@
 alias zr='exec zsh -l'
+alias cat='bat'

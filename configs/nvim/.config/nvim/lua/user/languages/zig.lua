@@ -8,7 +8,7 @@ M.lsps = {
 		mason_name = "zls",
 		lsp_name = "zls",
 		config = {
-			cmd = { "/home/maxhill/.local/share/mise/shims/zls" },
+			cmd = { vim.fn.expand("~/.local/share/mise/shims/zls") },
 			root_markers = { "build.zig", "build.zig.zon", ".git" },
 		},
 	},
@@ -21,8 +21,8 @@ M.formatters = {
 	{
 		name = "zigfmt",
 		options = {
-			command = "zig",
-			args = { "fmt", "--stdin" },
+			command = "mise",
+			args = { "exec", "zig@0.17.1", "--", "zig", "fmt", "--stdin" },
 			stdin = true,
 		},
 	},

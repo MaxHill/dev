@@ -8,10 +8,9 @@
 
 @import "/home/max/.config/theme/colors.css";
 
-/* This applies to text throughout the bar. */
 * {
-    font-family: "Maple Mono NF";
     font-size: 13px;
+    font-family: "DepartureMono Nerd Font", "Maple Mono NF";
 }
 
 /* This applies to the bar window, behind all modules. */

@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+yay -S --noconfirm --needed unzip
 yay -S --noconfirm --needed rsync
 yay -S --noconfirm --needed azure-cli
 yay -S --noconfirm --needed wget

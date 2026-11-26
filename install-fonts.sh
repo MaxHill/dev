@@ -9,4 +9,8 @@ yay -S --noconfirm --needed \
 
 yay -S --noconfirm --needed \
     ttf-jetbrains-mono-nerd \
-    ttf-jetbrains-mono
+    ttf-jetbrains-mono \
+    ttf-ibm-plex \
+    otf-departure-mono-nerd
+
+fc-cache -f

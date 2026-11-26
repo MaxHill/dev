@@ -3,13 +3,14 @@ node = "latest"
 pnpm = "latest"
 deno = "latest"
 
-zig = "0.15.2"
+zig = "0.17.1"
 
 go = "latest"
-zls = "0.16.0"
+zls = "0.17.0"
 codex = "latest"
 pi = "latest"
 gh = "latest"
+sqlite = "latest"
 
 [settings.upgrade]
 auto_prune = false
