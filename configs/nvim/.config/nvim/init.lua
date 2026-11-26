@@ -37,7 +37,9 @@ vim.pack.add({
 	{ src = "https://github.com/christoomey/vim-tmux-navigator" },
 })
 -- local packages
-vim.cmd.packadd("netcoredbg-macOS-arm64.nvim") -- Vendored version with improvements
+if vim.fn.has("macunix") == 1 then
+	vim.cmd.packadd("netcoredbg-macOS-arm64.nvim") -- Vendored macOS debugger
+end
 -- vim.pack.update()
 
 -- Mini
@@ -142,7 +144,17 @@ require("telescope").setup({
 		},
 	},
 })
-require("telescope").load_extension("fzf") -- Uncomment after building fzf-native
+local fzf_ok = pcall(require("telescope").load_extension, "fzf")
+if not fzf_ok then
+	vim.schedule(function()
+		vim.notify(
+			"Telescope: native FZF is unavailable; using the default sorter. Run make in "
+				.. vim.fn.stdpath("data")
+				.. "/site/pack/core/opt/telescope-fzf-native.nvim",
+			vim.log.levels.WARN
+		)
+	end)
+end
 
 ---@type Language[]
 local languages = {
@@ -418,6 +430,10 @@ vim.api.nvim_create_autocmd("FileType", {
 local dap = require("dap")
 local dapui = require("dapui")
 
+-- DAP panels pin their buffers. Never use a recently focused panel as a source window.
+-- Reuse an open source window, or split if the source is not displayed anywhere.
+dap.defaults.fallback.switchbuf = "useopen,split"
+
 -- Minimal UI setup from article
 dapui.setup({
 	expand_lines = true,
@@ -433,8 +449,9 @@ dapui.setup({
 		-- Layout 1: Default (console-based output)
 		{
 			elements = {
-				{ id = "scopes", size = 0.6 }, -- 60% for variables
-				{ id = "console", size = 0.4 }, -- 40% for console output
+				{ id = "scopes", size = 0.45 },
+				{ id = "watches", size = 0.25 },
+				{ id = "console", size = 0.3 },
 			},
 			size = 20,
 			position = "bottom",
@@ -442,8 +459,9 @@ dapui.setup({
 		-- Layout 2: REPL-based (for .NET, Go)
 		{
 			elements = {
-				{ id = "scopes", size = 0.6 }, -- 60% for variables
-				{ id = "repl", size = 0.4 }, -- 40% for REPL output
+				{ id = "scopes", size = 0.45 },
+				{ id = "watches", size = 0.25 },
+				{ id = "repl", size = 0.3 },
 			},
 			size = 20,
 			position = "bottom",
@@ -451,11 +469,19 @@ dapui.setup({
 	},
 })
 
--- Auto-open/close UI (layout based on language preference)
-dap.listeners.after.event_initialized["dapui_config"] = function()
-	local ft = vim.bo.filetype
-	local preferred_layout = dap_layout_map[ft] or 1 -- Default to layout 1 (console)
-	dapui.open({ layout = preferred_layout })
+-- Remember the launch's layout, not the filetype of an incidental UI buffer.
+local active_dap_layout = 1
+local function preferred_dap_layout()
+	local session = dap.session()
+	if session then
+		return session.config.dap_layout or active_dap_layout
+	end
+	return dap_layout_map[vim.bo.filetype] or active_dap_layout
+end
+dap.listeners.after.event_initialized["dapui_config"] = function(session)
+	active_dap_layout = session.config.dap_layout or (session.config.type == "coreclr" and 2 or 1)
+	dapui.close()
+	dapui.open({ layout = active_dap_layout })
 end
 dap.listeners.before.event_terminated["dapui_config"] = function()
 	dapui.close()
@@ -466,11 +492,11 @@ end
 
 -- Keymaps
 vim.keymap.set("n", "<leader>du", function()
-	dapui.toggle()
+	dapui.toggle({ layout = preferred_dap_layout() })
 end, { noremap = true, silent = true, desc = "Toggle DAP UI" })
 
 vim.keymap.set({ "n", "v" }, "<leader>dw", function()
-	require("dapui").eval(nil, { enter = true })
+	dapui.elements.watches.add()
 end, { noremap = true, silent = true, desc = "Add word under cursor to Watches" })
 
 vim.keymap.set({ "n", "v" }, "<leader>dh", function()
@@ -489,7 +515,12 @@ vim.keymap.set("n", "<leader>do", dap.step_over)
 vim.keymap.set("n", "<space>dC", dap.run_to_cursor)
 vim.keymap.set("n", "<space>dT", dap.terminate)
 
-require("netcoredbg-macOS-arm64").setup(require("dap"))
+vim.keymap.set("n", "<leader>dO", dap.step_out, { desc = "DAP step out" })
+vim.keymap.set("n", "<leader>dr", dap.repl.open, { desc = "Open DAP REPL" })
+
+if vim.fn.has("macunix") == 1 then
+	require("netcoredbg-macOS-arm64").setup(dap)
+end
 
 -- Snippets
 -- -----------------------------
